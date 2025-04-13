@@ -48,7 +48,7 @@ const Index = () => {
         // Original explore behavior
         setIsModalOpen(true);
       }
-      // The download functionality is now handled directly by the RepoForm component
+      // The download and download-link functionality is now handled directly by the RepoForm component
     } catch (error) {
       console.error("Error handling repository:", error);
     } finally {

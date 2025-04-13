@@ -1,5 +1,5 @@
 export type RepoType = "github" | "gitlab";
-export type RepoActionType = "explore" | "download-file-folder";
+export type RepoActionType = "download" | "explore" | "download-link";
 
 export interface RepoFile {
   name: string;
@@ -11,6 +11,8 @@ export interface RepoFile {
   downloadUrl?: string;
   children?: RepoFile[];
   isSelected?: boolean;
+  loaded?: boolean;
+  isLoading?: boolean;
 }
 
 export interface RepoData {
