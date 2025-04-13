@@ -12,17 +12,10 @@ import { ThemeProvider } from "../context/ThemeContext";
 import RepoForm from "../components/RepoForm";
 import { Github, Gitlab } from "lucide-react";
 import RepoExplorerModal from "../components/RepoExplorerModal";
-import { SavedRepo } from "../types/repo";
-import {
-  getSavedRepos,
-  loadRepoData,
-  fetchFileContent,
-  parseRepoUrl,
-} from "../services/repoService";
+import { SavedRepo, RepoActionType } from "../types/repo";
+import { getSavedRepos } from "../services/repoService";
 import SavedRepos from "../components/SavedRepos";
-import JSZip from "jszip";
-import { saveAs } from "file-saver";
-import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 
 const Index = () => {
   const [repoUrl, setRepoUrl] = useState<string>("");
@@ -30,7 +23,6 @@ const Index = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [savedRepos, setSavedRepos] = useState<SavedRepo[]>([]);
   const [activeTab, setActiveTab] = useState("repo");
-  const { toast } = useToast();
 
   useEffect(() => {
     // Load saved repos on initial load
@@ -47,10 +39,7 @@ const Index = () => {
     }
   };
 
-  const handleRepoSubmit = async (
-    url: string,
-    action: "explore" | "download-file" | "download-folder"
-  ) => {
+  const handleRepoSubmit = async (url: string, action: RepoActionType) => {
     setRepoUrl(url);
     setIsLoading(true);
 
@@ -58,78 +47,10 @@ const Index = () => {
       if (action === "explore") {
         // Original explore behavior
         setIsModalOpen(true);
-      } else {
-        // Direct download behavior
-        const parsedRepo = parseRepoUrl(url);
-        if (!parsedRepo || !parsedRepo.path) {
-          toast({
-            title: "Invalid URL",
-            description: "Could not parse repository path from URL",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        const { owner, repo, type, path } = parsedRepo;
-
-        // Load repo data to get branches
-        const repoData = await loadRepoData(url);
-        if (!repoData) {
-          toast({
-            title: "Repository Not Found",
-            description: "Could not load repository data",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        // Use the current branch from repoData
-        const branch = repoData.currentBranch;
-
-        if (action === "download-file") {
-          // Download single file
-          try {
-            const fileContent = await fetchFileContent(
-              owner,
-              repo,
-              path,
-              branch,
-              type
-            );
-
-            // Get the file name from the path
-            const fileName = path.split("/").pop() || "file";
-
-            // Create a blob and download it
-            const blob = new Blob([fileContent], {
-              type: "application/octet-stream",
-            });
-            saveAs(blob, fileName);
-
-            toast({
-              title: "File Downloaded",
-              description: `File ${fileName} has been downloaded successfully.`,
-            });
-          } catch (error) {
-            toast({
-              title: "Download Failed",
-              description:
-                "Could not download the file. It might not exist or be a directory.",
-              variant: "destructive",
-            });
-          }
-        } else if (action === "download-folder") {
-          // For folder, we need to open the explorer modal with the path pre-selected
-          setIsModalOpen(true);
-        }
       }
+      // The download functionality is now handled directly by the RepoForm component
     } catch (error) {
-      toast({
-        title: "Operation Failed",
-        description: "An error occurred while processing your request.",
-        variant: "destructive",
-      });
-      console.error("Error:", error);
+      console.error("Error handling repository:", error);
     } finally {
       setIsLoading(false);
     }
@@ -155,7 +76,7 @@ const Index = () => {
                 <Github className="h-4 w-4" />
                 <Gitlab className="h-4 w-4" />
                 <span className="text-sm text-muted-foreground">
-                  GitHub & GitLab file downloader
+                  GitHub & GitLab file extractor
                 </span>
               </div>
             </div>
@@ -163,25 +84,26 @@ const Index = () => {
           </div>
         </header>
 
-        <main className="flex-1 container py-6 px-4 md:py-8">
-          <Card className="max-w-4xl mx-auto">
-            <CardHeader>
-              <CardTitle className="text-center text-2xl md:text-3xl">
-                Download files from GitHub or GitLab repositories
+        <main className="flex-1 container py-8 px-4">
+          <Card className="max-w-4xl mx-auto shadow-sm">
+            <CardHeader className="text-center">
+              <CardTitle className="text-3xl font-bold tracking-tight">
+                Download files from Git repositories
               </CardTitle>
-              <CardDescription className="text-center text-base">
-                Browse, select, and download files from any public repository
+              <CardDescription className="text-base max-w-xl mx-auto mt-2">
+                Easily browse, select, and download files from any public GitHub
+                or GitLab repository
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Tabs
                 value={activeTab}
                 onValueChange={setActiveTab}
-                className="mb-6"
+                className="mb-8"
               >
-                <TabsList className="grid grid-cols-3 w-[400px] mx-auto">
-                  <TabsTrigger value="repo">Repository URL</TabsTrigger>
-                  <TabsTrigger value="saved">Saved Repos</TabsTrigger>
+                <TabsList className="grid grid-cols-3 max-w-md mx-auto">
+                  <TabsTrigger value="repo">Repository</TabsTrigger>
+                  <TabsTrigger value="saved">Saved</TabsTrigger>
                   <TabsTrigger value="example">Examples</TabsTrigger>
                 </TabsList>
 
@@ -199,10 +121,12 @@ const Index = () => {
 
                 <TabsContent value="example" className="mt-6">
                   <div className="space-y-4">
-                    <h3 className="font-medium">Try these examples:</h3>
+                    <h3 className="font-medium text-center mb-4">
+                      Try these example repositories:
+                    </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <Card
-                        className="cursor-pointer hover:bg-accent/50 transition-colors"
+                        className="cursor-pointer hover:bg-accent/50 transition-all hover:shadow-md"
                         onClick={() =>
                           handleRepoSubmit(
                             "https://github.com/facebook/react",
@@ -222,7 +146,7 @@ const Index = () => {
                       </Card>
 
                       <Card
-                        className="cursor-pointer hover:bg-accent/50 transition-colors"
+                        className="cursor-pointer hover:bg-accent/50 transition-all hover:shadow-md"
                         onClick={() =>
                           handleRepoSubmit(
                             "https://gitlab.com/gitlab-org/gitlab-foss",
@@ -244,7 +168,7 @@ const Index = () => {
                       </Card>
 
                       <Card
-                        className="cursor-pointer hover:bg-accent/50 transition-colors"
+                        className="cursor-pointer hover:bg-accent/50 transition-all hover:shadow-md"
                         onClick={() =>
                           handleRepoSubmit(
                             "https://github.com/vercel/next.js",
@@ -264,7 +188,7 @@ const Index = () => {
                       </Card>
 
                       <Card
-                        className="cursor-pointer hover:bg-accent/50 transition-colors"
+                        className="cursor-pointer hover:bg-accent/50 transition-all hover:shadow-md"
                         onClick={() =>
                           handleRepoSubmit(
                             "https://github.com/shadcn-ui/ui",
@@ -287,56 +211,56 @@ const Index = () => {
                 </TabsContent>
               </Tabs>
 
-              <div className="space-y-4">
-                <h3 className="font-medium">Features:</h3>
-                <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                  <li className="flex items-center gap-2">
+              <div className="space-y-4 bg-accent/25 p-6 rounded-lg">
+                <h3 className="font-semibold text-center">Features</h3>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                  <li className="flex items-center gap-2 bg-background p-3 rounded-md shadow-sm">
                     <div className="rounded-full bg-green-500/20 text-green-700 dark:text-green-400 p-1">
                       ✓
                     </div>
-                    Visual file tree explorer
+                    <span>Visual file explorer</span>
                   </li>
-                  <li className="flex items-center gap-2">
+                  <li className="flex items-center gap-2 bg-background p-3 rounded-md shadow-sm">
                     <div className="rounded-full bg-green-500/20 text-green-700 dark:text-green-400 p-1">
                       ✓
                     </div>
-                    Multi-select files and folders
+                    <span>Multi-file selection</span>
                   </li>
-                  <li className="flex items-center gap-2">
+                  <li className="flex items-center gap-2 bg-background p-3 rounded-md shadow-sm">
                     <div className="rounded-full bg-green-500/20 text-green-700 dark:text-green-400 p-1">
                       ✓
                     </div>
-                    GitHub and GitLab support
+                    <span>GitHub & GitLab</span>
                   </li>
-                  <li className="flex items-center gap-2">
+                  <li className="flex items-center gap-2 bg-background p-3 rounded-md shadow-sm">
                     <div className="rounded-full bg-green-500/20 text-green-700 dark:text-green-400 p-1">
                       ✓
                     </div>
-                    Branch selection
+                    <span>Branch selection</span>
                   </li>
-                  <li className="flex items-center gap-2">
+                  <li className="flex items-center gap-2 bg-background p-3 rounded-md shadow-sm">
                     <div className="rounded-full bg-green-500/20 text-green-700 dark:text-green-400 p-1">
                       ✓
                     </div>
-                    File size and type information
+                    <span>File size info</span>
                   </li>
-                  <li className="flex items-center gap-2">
+                  <li className="flex items-center gap-2 bg-background p-3 rounded-md shadow-sm">
                     <div className="rounded-full bg-green-500/20 text-green-700 dark:text-green-400 p-1">
                       ✓
                     </div>
-                    Direct file/folder links
+                    <span>Direct file links</span>
                   </li>
-                  <li className="flex items-center gap-2">
+                  <li className="flex items-center gap-2 bg-background p-3 rounded-md shadow-sm">
                     <div className="rounded-full bg-green-500/20 text-green-700 dark:text-green-400 p-1">
                       ✓
                     </div>
-                    Save favorite repositories
+                    <span>Save repositories</span>
                   </li>
-                  <li className="flex items-center gap-2">
+                  <li className="flex items-center gap-2 bg-background p-3 rounded-md shadow-sm">
                     <div className="rounded-full bg-green-500/20 text-green-700 dark:text-green-400 p-1">
                       ✓
                     </div>
-                    Mobile-friendly design
+                    <span>Mobile friendly</span>
                   </li>
                 </ul>
               </div>
@@ -344,10 +268,10 @@ const Index = () => {
           </Card>
         </main>
 
-        <footer className="border-t py-4 px-6">
+        <footer className="border-t py-4 px-6 mt-8">
           <div className="container flex flex-col md:flex-row justify-between items-center gap-2 text-sm text-muted-foreground">
             <div>
-              <span>RepoZip - Download repository files with ease</span>
+              <span>GitExtract - Download repository files with ease</span>
             </div>
             <div>
               <p>Supports GitHub and GitLab public repositories</p>
@@ -360,6 +284,7 @@ const Index = () => {
           open={isModalOpen}
           onClose={handleCloseModal}
         />
+        <Toaster />
       </div>
     </ThemeProvider>
   );

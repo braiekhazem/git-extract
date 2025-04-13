@@ -1,11 +1,10 @@
-
-export type RepoType = 'github' | 'gitlab';
-export type RepoActionType = 'explore' | 'download-file' | 'download-folder';
+export type RepoType = "github" | "gitlab";
+export type RepoActionType = "explore" | "download-file-folder";
 
 export interface RepoFile {
   name: string;
   path: string;
-  type: 'file' | 'dir';
+  type: "file" | "dir";
   size?: number;
   sha?: string;
   url?: string;
