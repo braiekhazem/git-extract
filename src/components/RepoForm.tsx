@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { RepoActionType } from "../types/repo";
 import { saveAs } from "file-saver";
@@ -9,7 +8,6 @@ import {
   loadRepoData,
   fetchFileContent,
   parseRepoUrl,
-  fetchRepoFiles,
 } from "../services/repoService";
 import {
   createAndDownloadZip,
@@ -22,7 +20,6 @@ import {
   Download,
   Search,
   Loader2,
-  Share2,
   Link,
   ChevronDown,
 } from "lucide-react";
@@ -52,6 +49,17 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!url) return;
+
+    if (action === "download-link") {
+      const link = generateDownloadLink(url);
+      navigator.clipboard.writeText(link);
+      toast({
+        title: "Link Copied",
+        description:
+          "A shareable download link has been copied to your clipboard.",
+      });
+      return;
+    }
 
     try {
       const parsedRepo = parseRepoUrl(url);
@@ -180,234 +188,131 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
           }
         }
       } else if (action === "explore") {
-        // Explore mode - open modal for repo/folder, download for file
-        const { owner, repo, type, path } = parsedRepo;
-
-        // For repositories, open the modal immediately
-        if (!path) {
-          // This is a repository, open modal
-          onSubmit(url, "explore");
-          return;
-        }
-
-        // Load repo data to get branches
-        const repoData = await loadRepoData(url);
-        if (!repoData) {
-          toast({
-            title: "Repository Not Found",
-            description: "Could not load repository data",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        const branch = parsedRepo.branch || repoData.currentBranch;
-
-        try {
-          // Check if it's a file or folder by attempting to fetch file content first
-          try {
-            // Try to get the file content
-            const fileContent = await fetchFileContent(
-              owner,
-              repo,
-              path,
-              branch,
-              type
-            );
-
-            // If we got here, it's a file - download it
-            setDownloading(true);
-            setDownloadProgress(0);
-            setDownloadError(false);
-            setShowProgress(true);
-
-            const fileName = path.split("/").pop() || "file";
-            setDownloadingItemName(fileName);
-            const blob = new Blob([fileContent], {
-              type: "application/octet-stream",
-            });
-            saveAs(blob, fileName);
-            setDownloadProgress(100);
-
-            toast({
-              title: "File Downloaded",
-              description: `File ${fileName} has been downloaded successfully.`,
-            });
-
-            // Hide progress after a short delay
-            setTimeout(() => {
-              setDownloading(false);
-              setShowProgress(false);
-              setDownloadProgress(0);
-              setDownloadingItemName("");
-            }, 1000);
-          } catch (fileError) {
-            // If we couldn't get file content, it's probably a folder - open the modal
-            console.log("Not a file, trying as a folder", fileError);
-            onSubmit(url, "explore");
-          }
-        } catch (error) {
-          console.error("Error:", error);
-          toast({
-            title: "Operation Failed",
-            description: "Could not process the content. Please check the URL.",
-            variant: "destructive",
-          });
-        }
-      } else if (action === "download-link") {
-        // Generate download link
-        const downloadLink = generateDownloadLink(url, "download");
-
-        // Copy to clipboard
-        try {
-          await navigator.clipboard.writeText(downloadLink);
-          toast({
-            title: "Download Link Generated",
-            description: "The download link has been copied to your clipboard!",
-          });
-        } catch (error) {
-          // If clipboard API fails, show the link to user
-          console.error("Failed to copy to clipboard:", error);
-          toast({
-            title: "Download Link Generated",
-            description: downloadLink,
-            duration: 10000,
-          });
-        }
+        // For explore, just submit. The main page will handle opening the modal.
+        onSubmit(url, "explore");
       }
     } catch (error) {
-      console.error("Error processing repository:", error);
+      console.error("Error:", error);
       toast({
         title: "Error",
-        description: "An error occurred while processing the repository",
+        description: "Could not process the URL. Please ensure it's correct.",
         variant: "destructive",
       });
     }
   };
 
-  const getActionIcon = () => {
+  const ActionButtonContent = () => {
     switch (action) {
-      case "download":
-        return <Download className="h-4 w-4" />;
       case "explore":
-        return <Search className="h-4 w-4" />;
-      case "download-link":
-        return <Link className="h-4 w-4" />;
-      default:
-        return <Download className="h-4 w-4" />;
-    }
-  };
-
-  const getActionLabel = () => {
-    switch (action) {
+        return (
+          <>
+            <Search className="h-4 w-4 mr-2" />
+            Explore
+          </>
+        );
       case "download":
-        return "Download";
-      case "explore":
-        return "Explore";
+        return (
+          <>
+            <Download className="h-4 w-4 mr-2" />
+            Download
+          </>
+        );
       case "download-link":
-        return "Get Link";
-      default:
-        return "Download";
+        return (
+          <>
+            <Link className="h-4 w-4 mr-2" />
+            Get Link
+          </>
+        );
     }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-center gap-4 mb-2">
-        <Github className="h-8 w-8 text-slate-800 dark:text-slate-200" />
-        <Gitlab className="h-8 w-8 text-orange-500" />
-      </div>
-
+    <div className="max-w-xl mx-auto">
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="repo-url" className="text-sm font-medium">
-            Repository URL
-          </Label>
-          <div className="flex flex-col sm:flex-row gap-2">
+        <div className="grid gap-2">
+          <label htmlFor="repo-url" className="font-medium text-sm">
+            Enter a public repository URL
+          </label>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+              <Link className="h-4 w-4" />
+            </span>
             <Input
               id="repo-url"
               type="text"
-              placeholder="https://github.com/user/repo or https://gitlab.com/user/repo"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              className="flex-grow"
-              required
+              placeholder="e.g., https://github.com/facebook/react"
+              className="pl-9"
+              disabled={isLoading || downloading}
             />
-            <div className="flex gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="gap-2 w-full sm:w-auto whitespace-nowrap"
-                  >
-                    {getActionIcon()}
-                    {getActionLabel()}
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setAction("explore")}>
-                    <Search className="h-4 w-4 mr-2" />
-                    Explore
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setAction("download")}>
-                    <Download className="h-4 w-4 mr-2" />
-                    Download
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setAction("download-link")}>
-                    <Link className="h-4 w-4 mr-2" />
-                    Get Download Link
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="w-full sm:w-auto"
-              >
-                {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  "Go"
-                )}
-              </Button>
-            </div>
           </div>
+          <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+            <Github className="h-3 w-3" />
+            <Gitlab className="h-3 w-3" />
+            Supports public repository, folder, and file URLs.
+          </p>
         </div>
 
-        <p className="text-xs text-muted-foreground text-center mt-2">
-          Enter a repository URL to explore or download content. You can specify
-          a repository, folder, or file path.
-          <br />
-          <span className="font-medium">Download:</span> Direct download
-          &middot;
-          <span className="font-medium">Explore:</span> Browse content &middot;
-          <span className="font-medium">Get Link:</span> Copy a download link
-        </p>
+        <div className="flex mt-4">
+          <Button
+            type="submit"
+            disabled={!url || isLoading || downloading}
+            className="flex-1 rounded-r-none"
+          >
+            {isLoading || downloading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <ActionButtonContent />
+            )}
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="w-10 rounded-l-none border-l-0"
+                disabled={isLoading || downloading}
+              >
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={() => setAction("explore")}>
+                <Search className="h-4 w-4 mr-2" />
+                Explore Files
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setAction("download")}>
+                <Download className="h-4 w-4 mr-2" />
+                Direct Download
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setAction("download-link")}>
+                <Link className="h-4 w-4 mr-2" />
+                Get Download Link
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </form>
 
-      {/* Download Progress Modal */}
       {showProgress && (
-        <DirectDownloadProgress
-          progress={downloadProgress}
-          isComplete={downloadProgress === 100}
-          isError={downloadError}
-          itemName={downloadingItemName}
-          onCancel={() => {
-            setDownloading(false);
-            setShowProgress(false);
-            setDownloadProgress(0);
-            setDownloadError(false);
-            setDownloadingItemName("");
-          }}
-          onClose={() => {
-            setDownloading(false);
-            setShowProgress(false);
-            setDownloadProgress(0);
-            setDownloadError(false);
-            setDownloadingItemName("");
-          }}
-        />
+        <div className="mt-4">
+          <DirectDownloadProgress
+            progress={downloadProgress}
+            isComplete={downloadProgress === 100 && !downloadError}
+            isError={downloadError}
+            itemName={downloadingItemName}
+            onCancel={() => {
+              setDownloading(false);
+              setShowProgress(false);
+            }}
+            onClose={() => {
+              setShowProgress(false);
+            }}
+          />
+        </div>
       )}
     </div>
   );

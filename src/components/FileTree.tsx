@@ -68,13 +68,13 @@ const FileTree: React.FC<FileTreeProps> = ({
       case "file-video":
         return <FileVideo size={18} className="shrink-0 text-red-500" />;
       default:
-        return <FileIcon size={18} className="shrink-0 text-gray-500" />;
+        return <FileIcon size={16} className="shrink-0 text-gray-500" />;
     }
   };
 
   return (
     <TooltipProvider>
-      <ul className="space-y-1">
+      <ul className="space-y-0.5">
         {files
           .sort((a, b) => {
             // Sort directories first, then files
@@ -85,45 +85,38 @@ const FileTree: React.FC<FileTreeProps> = ({
             return a.name.localeCompare(b.name);
           })
           .map((file) => (
-            <li key={file.path} className="select-none">
+            <li key={file.path} className="select-none text-sm">
               <div
-                className={`flex items-center gap-2 p-1 rounded-md hover:bg-muted ${
-                  selectedFiles.has(file.path) ? "bg-muted" : ""
+                className={`flex items-center p-1.5 rounded-md transition-colors ${
+                  selectedFiles.has(file.path)
+                    ? "bg-primary/10"
+                    : "hover:bg-muted"
                 }`}
-                style={{ paddingLeft: `${level * 12 + 4}px` }}
+                style={{ paddingLeft: `${level * 24 + 6}px` }}
               >
                 <Checkbox
+                  id={`select-${file.path}`}
                   checked={selectedFiles.has(file.path)}
                   onCheckedChange={(checked) =>
                     onFileSelect(file.path, checked === true)
                   }
-                  className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                  className="mr-3"
                 />
 
                 <div
-                  className="flex items-center gap-2 flex-1 cursor-pointer"
+                  className="flex items-center gap-2.5 flex-1 cursor-pointer truncate"
                   onClick={() =>
-                    file.type === "dir" ? toggleFolder(file.path) : null
+                    file.type === "dir"
+                      ? toggleFolder(file.path)
+                      : onFileSelect(file.path, !selectedFiles.has(file.path))
                   }
                 >
-                  {file.type === "dir" && !file.isLoading && (
-                    <span className="flex text-muted-foreground mr-0.5">
-                      {expandedFolders.has(file.path) ? (
-                        <ChevronDown size={14} />
-                      ) : (
-                        <ChevronRight size={14} />
-                      )}
-                    </span>
-                  )}
-                  {file.type === "dir" && file.isLoading && (
-                    <span className="flex text-muted-foreground mr-0.5">
-                      <Loader2 size={14} className="animate-spin" />
-                    </span>
-                  )}
-                  {getFileIconComponent(file)}
+                  <span className="w-5 flex items-center shrink-0">
+                    {getFileIconComponent(file)}
+                  </span>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <span className="text-sm truncate">{file.name}</span>
+                      <span className="truncate">{file.name}</span>
                     </TooltipTrigger>
                     {file.type === "dir" && !file.isLoading && (
                       <TooltipContent side="right">
@@ -141,11 +134,26 @@ const FileTree: React.FC<FileTreeProps> = ({
                         <p>Loading folder contents...</p>
                       </TooltipContent>
                     )}
+                    {file.name.length > 30 && (
+                      <TooltipContent side="right">
+                        <p>{file.name}</p>
+                      </TooltipContent>
+                    )}
                   </Tooltip>
 
                   {file.type === "file" && file.size !== undefined && (
                     <span className="text-xs text-muted-foreground ml-auto">
                       {formatFileSize(file.size)}
+                    </span>
+                  )}
+
+                  {file.type === "dir" && (
+                    <span className="text-xs text-muted-foreground ml-auto pr-2">
+                      {expandedFolders.has(file.path) ? (
+                        <ChevronDown size={16} />
+                      ) : (
+                        <ChevronRight size={16} />
+                      )}
                     </span>
                   )}
                 </div>

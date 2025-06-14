@@ -584,13 +584,31 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
       <DialogContent className="max-w-4xl w-full h-[80vh] p-0 flex flex-col">
         <DialogHeader className="p-4 border-b">
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl">
+            <DialogTitle className="text-lg font-medium">
               {loading
                 ? "Loading Repository..."
                 : repoData
                 ? `${repoData.owner}/${repoData.repo}`
                 : "Repository Explorer"}
             </DialogTitle>
+            <div className="flex items-center gap-2">
+              {repoData && (
+                <BranchSelector
+                  branches={repoData.branches}
+                  currentBranch={repoData.currentBranch}
+                  onChange={handleBranchChange}
+                  disabled={downloading}
+                />
+              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onClose}
+                className="ml-auto"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </DialogHeader>
 
@@ -614,71 +632,51 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
           </div>
         ) : (
           <>
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-4 bg-card border-b">
-              <div className="space-y-1">
-                <h2 className="text-lg font-bold flex items-center gap-2">
-                  {repoData.type === "github" ? (
-                    <Badge className="bg-black text-white">GitHub</Badge>
-                  ) : (
-                    <Badge className="bg-orange-600 text-white">GitLab</Badge>
-                  )}
-                  {repoData.owner}/{repoData.repo}
-                </h2>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <BranchSelector
-                    branches={repoData.branches}
-                    currentBranch={repoData.currentBranch}
-                    onChange={handleBranchChange}
-                    disabled={downloading}
-                  />
-                </div>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-4 bg-muted/50 border-b sticky top-0 z-10">
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={selectAll}
+                  disabled={downloading}
+                >
+                  Select All
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={unselectAll}
+                  disabled={downloading}
+                >
+                  Unselect All
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSaveRepo}
+                  disabled={downloading || saved}
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  {saved ? "Saved" : "Save to Examples"}
+                </Button>
               </div>
-
-              <div className="flex flex-col w-full md:w-auto gap-2">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={selectAll}
-                    disabled={downloading}
-                  >
-                    Select All
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={unselectAll}
-                    disabled={downloading}
-                  >
-                    Unselect All
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleSaveRepo}
-                    disabled={downloading || saved}
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    {saved ? "Saved" : "Save to Examples"}
-                  </Button>
-                  <Button
-                    onClick={handleDownload}
-                    disabled={selectedCount === 0 || downloading}
-                  >
-                    {downloading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Downloading...
-                      </>
-                    ) : (
-                      <>
-                        <Download className="h-4 w-4 mr-2" />
-                        Download ({selectedCount})
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </div>
+              <Button
+                onClick={handleDownload}
+                disabled={selectedCount === 0 || downloading}
+                className="w-full md:w-auto"
+              >
+                {downloading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Downloading...
+                  </>
+                ) : (
+                  <>
+                    <Download className="h-4 w-4 mr-2" />
+                    Download ({selectedCount})
+                  </>
+                )}
+              </Button>
             </div>
 
             <div className="flex-1 overflow-auto">
