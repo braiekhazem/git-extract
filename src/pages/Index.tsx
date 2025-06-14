@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -16,6 +17,7 @@ import { SavedRepo, RepoActionType } from "../types/repo";
 import { getSavedRepos } from "../services/repoService";
 import SavedRepos from "../components/SavedRepos";
 import { Toaster } from "@/components/ui/toaster";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const [repoUrl, setRepoUrl] = useState<string>("");
@@ -23,11 +25,26 @@ const Index = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [savedRepos, setSavedRepos] = useState<SavedRepo[]>([]);
   const [activeTab, setActiveTab] = useState("repo");
+  const [initialAction, setInitialAction] = useState<RepoActionType | null>(
+    null
+  );
+  const [searchParams] = useSearchParams();
+  const { toast } = useToast();
 
   useEffect(() => {
     // Load saved repos on initial load
     loadSavedRepos();
-  }, []);
+
+    // Check for URL parameters for auto-download
+    const urlParam = searchParams.get("url");
+    const actionParam = searchParams.get("action");
+
+    if (urlParam) {
+      const decodedUrl = decodeURIComponent(urlParam);
+      const action = actionParam === "download" ? "download" : "explore";
+      handleRepoSubmit(decodedUrl, action);
+    }
+  }, [searchParams]);
 
   const loadSavedRepos = () => {
     const repos = getSavedRepos();
@@ -44,13 +61,19 @@ const Index = () => {
     setIsLoading(true);
 
     try {
-      if (action === "explore") {
-        // Original explore behavior
+      if (action === "explore" || action === "download") {
+        setInitialAction(action);
         setIsModalOpen(true);
       }
-      // The download and download-link functionality is now handled directly by the RepoForm component
     } catch (error) {
       console.error("Error handling repository:", error);
+      toast({
+        title: "Error processing repository",
+        description: `Could not perform the requested action. ${
+          error instanceof Error ? `(${error.message})` : ""
+        }`.trim(),
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -59,6 +82,7 @@ const Index = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setRepoUrl("");
+    setInitialAction(null);
     // Refresh saved repos when modal closes
     loadSavedRepos();
   };
@@ -283,6 +307,7 @@ const Index = () => {
           repoUrl={repoUrl}
           open={isModalOpen}
           onClose={handleCloseModal}
+          initialAction={initialAction}
         />
         <Toaster />
       </div>

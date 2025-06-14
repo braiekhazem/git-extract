@@ -7,6 +7,7 @@ import { loadRepoData, loadDirectoryContents } from "../services/repoService";
 import {
   createAndDownloadZip,
   getSelectedFiles,
+  getSelectedFilesWithDirectoryExpansion,
 } from "../services/downloadService";
 import { Download, Loader2, Folder } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
@@ -294,8 +295,20 @@ const RepoExplorer: React.FC<RepoExplorerProps> = ({
     setShowProgress(true);
 
     try {
-      // Get all selected files and their data
-      const allFiles = getSelectedFilesToDownload();
+      // Use enhanced file collection that properly handles directories
+      const allFiles = await getSelectedFilesWithDirectoryExpansion(
+        repoData,
+        selectedFilePaths
+      );
+
+      if (allFiles.length === 0) {
+        toast({
+          title: "No files found",
+          description: "No files were found in the selected directories.",
+          variant: "destructive",
+        });
+        return;
+      }
 
       // Create and download the ZIP
       await createAndDownloadZip(repoData, allFiles, setProgress);
@@ -318,50 +331,12 @@ const RepoExplorer: React.FC<RepoExplorerProps> = ({
     }
   };
 
-  const getSelectedFilesToDownload = (): RepoFile[] => {
-    if (!repoData) return [];
+  const getSelectedCount = (): number => {
+    if (!repoData || selectedFilePaths.size === 0) return 0;
 
-    const getFilesToDownload = (files: RepoFile[]): RepoFile[] => {
-      let result: RepoFile[] = [];
-
-      for (const file of files) {
-        const isSelected = selectedFilePaths.has(file.path);
-
-        if (isSelected) {
-          if (file.type === "dir" && file.children) {
-            // If a directory is selected, include all of its files
-            const allChildFiles = getAllFilesInDir(file);
-            result = [...result, ...allChildFiles];
-          } else if (file.type === "file") {
-            result.push(file);
-          }
-        } else if (file.type === "dir" && file.children) {
-          // If directory is not selected, check its children
-          const childrenToDownload = getFilesToDownload(file.children);
-          result = [...result, ...childrenToDownload];
-        }
-      }
-
-      return result;
-    };
-
-    const getAllFilesInDir = (dir: RepoFile): RepoFile[] => {
-      let result: RepoFile[] = [];
-
-      if (!dir.children) return result;
-
-      for (const child of dir.children) {
-        if (child.type === "file") {
-          result.push(child);
-        } else if (child.type === "dir" && child.children) {
-          result = [...result, ...getAllFilesInDir(child)];
-        }
-      }
-
-      return result;
-    };
-
-    return getFilesToDownload(repoData.files);
+    // For display purposes, we'll show the number of selected items
+    // The actual file count will be calculated during download
+    return selectedFilePaths.size;
   };
 
   if (loading) {
@@ -390,7 +365,7 @@ const RepoExplorer: React.FC<RepoExplorerProps> = ({
     );
   }
 
-  const selectedCount = getSelectedFilesToDownload().length;
+  const selectedCount = getSelectedCount();
 
   return (
     <div className="flex flex-col h-full">

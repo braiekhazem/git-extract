@@ -11,7 +11,11 @@ import {
   parseRepoUrl,
   fetchRepoFiles,
 } from "../services/repoService";
-import { createAndDownloadZip } from "../services/downloadService";
+import {
+  createAndDownloadZip,
+  generateDownloadLink,
+  collectAllFilesFromDirectory,
+} from "../services/downloadService";
 import {
   Github,
   Gitlab,
@@ -20,6 +24,7 @@ import {
   Loader2,
   Share2,
   Link,
+  ChevronDown,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -27,6 +32,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import DirectDownloadProgress from "./DirectDownloadProgress";
 
 interface RepoFormProps {
   onSubmit: (url: string, action: RepoActionType) => void;
@@ -35,7 +41,12 @@ interface RepoFormProps {
 
 const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
   const [url, setUrl] = useState("");
-  const [action, setAction] = useState<RepoActionType>("download");
+  const [action, setAction] = useState<RepoActionType>("explore");
+  const [downloading, setDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [downloadError, setDownloadError] = useState(false);
+  const [showProgress, setShowProgress] = useState(false);
+  const [downloadingItemName, setDownloadingItemName] = useState("");
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,10 +65,8 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
       }
 
       if (action === "download") {
-        // Direct download behavior (repo, folder, or file)
         const { owner, repo, type, path } = parsedRepo;
 
-        // Load repo data to get branches
         const repoData = await loadRepoData(url);
         if (!repoData) {
           toast({
@@ -68,14 +77,25 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
           return;
         }
 
-        // Use the current branch from repoData
-        const branch = repoData.currentBranch;
+        // Use the current branch from repoData or the parsed branch
+        const branch = parsedRepo.branch || repoData.currentBranch;
+
+        // Start download with progress tracking
+        setDownloading(true);
+        setDownloadProgress(0);
+        setDownloadError(false);
+        setShowProgress(true);
+        setDownloadingItemName(
+          path ? `${owner}/${repo}/${path}` : `${owner}/${repo}`
+        );
 
         try {
           if (!path) {
             // This is a repository, download all files
-            await createAndDownloadZip(repoData, repoData.files, (progress) => {
-              console.log(`Download progress: ${progress}%`);
+            const allFiles = await collectAllFilesFromDirectory(repoData, "");
+
+            await createAndDownloadZip(repoData, allFiles, (progress) => {
+              setDownloadProgress(progress);
             });
 
             toast({
@@ -84,27 +104,9 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
                 "The repository has been downloaded successfully as a ZIP file.",
             });
           } else {
-            // Check if it's a file or folder
-            const files = await fetchRepoFiles(owner, repo, branch, type, path);
-
-            if (files.length > 0) {
-              // This is a directory, create a zip of all files
-              const allFiles = files.map((file) => ({
-                ...file,
-                isSelected: true,
-              }));
-
-              await createAndDownloadZip(repoData, allFiles, (progress) => {
-                console.log(`Download progress: ${progress}%`);
-              });
-
-              toast({
-                title: "Folder Downloaded",
-                description:
-                  "The folder has been downloaded successfully as a ZIP file.",
-              });
-            } else {
-              // This is a single file
+            // For files or folders, use the enhanced collection method
+            try {
+              // First try to get it as a single file
               const fileContent = await fetchFileContent(
                 owner,
                 repo,
@@ -113,29 +115,69 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
                 type
               );
 
-              // Get the file name from the path
+              // If we got here, it's a file - download it
               const fileName = path.split("/").pop() || "file";
-
-              // Create a blob and download it
               const blob = new Blob([fileContent], {
                 type: "application/octet-stream",
               });
               saveAs(blob, fileName);
+              setDownloadProgress(100);
 
               toast({
                 title: "File Downloaded",
                 description: `File ${fileName} has been downloaded successfully.`,
               });
+            } catch (fileError) {
+              // If file fetch failed, it's probably a directory
+              const allFiles = await collectAllFilesFromDirectory(
+                repoData,
+                path
+              );
+
+              if (allFiles.length > 0) {
+                await createAndDownloadZip(repoData, allFiles, (progress) => {
+                  setDownloadProgress(progress);
+                });
+
+                toast({
+                  title: "Folder Downloaded",
+                  description: `The folder has been downloaded successfully with ${allFiles.length} files.`,
+                });
+              } else {
+                toast({
+                  title: "Download Failed",
+                  description: "No files found in the specified path.",
+                  variant: "destructive",
+                });
+              }
             }
           }
         } catch (error) {
-          console.error("Download error:", error);
+          setDownloadError(true);
           toast({
             title: "Download Failed",
             description:
               "Could not download the content. It might not exist or you might not have access to it.",
             variant: "destructive",
           });
+
+          setTimeout(() => {
+            setDownloading(false);
+            setShowProgress(false);
+            setDownloadProgress(0);
+            setDownloadError(false);
+            setDownloadingItemName("");
+          }, 3000);
+        } finally {
+          // Hide progress after a short delay to show completion (if no error)
+          if (!downloadError) {
+            setTimeout(() => {
+              setDownloading(false);
+              setShowProgress(false);
+              setDownloadProgress(0);
+              setDownloadingItemName("");
+            }, 1000);
+          }
         }
       } else if (action === "explore") {
         // Explore mode - open modal for repo/folder, download for file
@@ -159,7 +201,7 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
           return;
         }
 
-        const branch = repoData.currentBranch;
+        const branch = parsedRepo.branch || repoData.currentBranch;
 
         try {
           // Check if it's a file or folder by attempting to fetch file content first
@@ -174,16 +216,31 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
             );
 
             // If we got here, it's a file - download it
+            setDownloading(true);
+            setDownloadProgress(0);
+            setDownloadError(false);
+            setShowProgress(true);
+
             const fileName = path.split("/").pop() || "file";
+            setDownloadingItemName(fileName);
             const blob = new Blob([fileContent], {
               type: "application/octet-stream",
             });
             saveAs(blob, fileName);
+            setDownloadProgress(100);
 
             toast({
               title: "File Downloaded",
               description: `File ${fileName} has been downloaded successfully.`,
             });
+
+            // Hide progress after a short delay
+            setTimeout(() => {
+              setDownloading(false);
+              setShowProgress(false);
+              setDownloadProgress(0);
+              setDownloadingItemName("");
+            }, 1000);
           } catch (fileError) {
             // If we couldn't get file content, it's probably a folder - open the modal
             console.log("Not a file, trying as a folder", fileError);
@@ -198,43 +255,23 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
           });
         }
       } else if (action === "download-link") {
-        // Create and copy download link
-        const { owner, repo, type, path } = parsedRepo;
+        // Generate download link
+        const downloadLink = generateDownloadLink(url, "download");
 
-        if (!path) {
-          // For the entire repository, we can use the GitHub/GitLab download URL
-          let downloadUrl = "";
-          if (type === "github") {
-            downloadUrl = `https://github.com/${owner}/${repo}/archive/refs/heads/main.zip`;
-          } else {
-            downloadUrl = `https://gitlab.com/${owner}/${repo}/-/archive/main/${repo}-main.zip`;
-          }
-
-          // Copy the link to clipboard
-          await navigator.clipboard.writeText(downloadUrl);
-
+        // Copy to clipboard
+        try {
+          await navigator.clipboard.writeText(downloadLink);
           toast({
-            title: "Download Link Copied",
-            description:
-              "Repository download link has been copied to clipboard.",
+            title: "Download Link Generated",
+            description: "The download link has been copied to your clipboard!",
           });
-        } else {
-          // For files or folders, we need to create a special link
-          // This would ideally point to your own service that handles direct downloads
-          // For demonstration, we'll create a URL with query parameters
-
-          // Create a URL that would trigger a download when accessed
-          const appUrl = window.location.origin;
-          const downloadUrl = `${appUrl}/api/download?owner=${owner}&repo=${repo}&path=${encodeURIComponent(
-            path
-          )}&type=${type}`;
-
-          // Copy the link to clipboard
-          await navigator.clipboard.writeText(downloadUrl);
-
+        } catch (error) {
+          // If clipboard API fails, show the link to user
+          console.error("Failed to copy to clipboard:", error);
           toast({
-            title: "Download Link Copied",
-            description: "Direct download link has been copied to clipboard.",
+            title: "Download Link Generated",
+            description: downloadLink,
+            duration: 10000,
           });
         }
       }
@@ -305,16 +342,17 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
                   >
                     {getActionIcon()}
                     {getActionLabel()}
+                    <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setAction("download")}>
-                    <Download className="h-4 w-4 mr-2" />
-                    Download
-                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setAction("explore")}>
                     <Search className="h-4 w-4 mr-2" />
                     Explore
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setAction("download")}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setAction("download-link")}>
                     <Link className="h-4 w-4 mr-2" />
@@ -347,130 +385,32 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
           <span className="font-medium">Get Link:</span> Copy a download link
         </p>
       </form>
+
+      {/* Download Progress Modal */}
+      {showProgress && (
+        <DirectDownloadProgress
+          progress={downloadProgress}
+          isComplete={downloadProgress === 100}
+          isError={downloadError}
+          itemName={downloadingItemName}
+          onCancel={() => {
+            setDownloading(false);
+            setShowProgress(false);
+            setDownloadProgress(0);
+            setDownloadError(false);
+            setDownloadingItemName("");
+          }}
+          onClose={() => {
+            setDownloading(false);
+            setShowProgress(false);
+            setDownloadProgress(0);
+            setDownloadError(false);
+            setDownloadingItemName("");
+          }}
+        />
+      )}
     </div>
   );
-};
-
-// At the bottom of the file before the export
-// Add this function to handle the API route for direct downloads
-
-// This code would be used in an API route like /api/download
-// You'd need to create this file and export this function
-export const handleDownloadRequest = async (req: any, res: any) => {
-  const { owner, repo, path, type } = req.query;
-
-  if (!owner || !repo || !type) {
-    return res.status(400).json({ error: "Missing required parameters" });
-  }
-
-  try {
-    // Load repo data to get the current branch
-    const url =
-      type === "github"
-        ? `https://github.com/${owner}/${repo}${
-            path ? `/blob/main/${path}` : ""
-          }`
-        : `https://gitlab.com/${owner}/${repo}${
-            path ? `/-/blob/main/${path}` : ""
-          }`;
-
-    const repoData = await loadRepoData(url);
-    if (!repoData) {
-      return res.status(404).json({ error: "Repository not found" });
-    }
-
-    const branch = repoData.currentBranch;
-
-    if (path) {
-      // Check if it's a file or folder
-      const files = await fetchRepoFiles(owner, repo, branch, type, path);
-
-      if (files.length > 0) {
-        // This is a directory, create a zip of all files
-        const allFiles = files.map((file) => ({
-          ...file,
-          isSelected: true,
-        }));
-
-        // Create a zip file in memory
-        const JSZip = require("jszip");
-        const zip = new JSZip();
-
-        for (const file of allFiles) {
-          if (file.type === "file") {
-            const content = await fetchFileContent(
-              owner,
-              repo,
-              file.path,
-              branch,
-              type
-            );
-            zip.file(file.path, content);
-          }
-        }
-
-        // Generate ZIP and send it as response
-        const zipContent = await zip.generateAsync({ type: "nodebuffer" });
-        res.setHeader("Content-Type", "application/zip");
-        res.setHeader(
-          "Content-Disposition",
-          `attachment; filename="${owner}-${repo}-${path.split("/").pop()}.zip"`
-        );
-        return res.send(zipContent);
-      } else {
-        // This is a single file
-        const fileContent = await fetchFileContent(
-          owner,
-          repo,
-          path,
-          branch,
-          type
-        );
-
-        // Get the file name from the path
-        const fileName = path.split("/").pop() || "file";
-
-        // Detect content type based on file extension
-        const extension = fileName.split(".").pop()?.toLowerCase();
-        let contentType = "application/octet-stream";
-
-        // Set appropriate content type for common file types
-        if (["js", "jsx", "ts", "tsx"].includes(extension))
-          contentType = "text/javascript";
-        else if (["html", "htm"].includes(extension)) contentType = "text/html";
-        else if (extension === "css") contentType = "text/css";
-        else if (["jpg", "jpeg"].includes(extension))
-          contentType = "image/jpeg";
-        else if (extension === "png") contentType = "image/png";
-        else if (extension === "json") contentType = "application/json";
-        else if (extension === "md") contentType = "text/markdown";
-
-        res.setHeader("Content-Type", contentType);
-        res.setHeader(
-          "Content-Disposition",
-          `attachment; filename="${fileName}"`
-        );
-        return res.send(fileContent);
-      }
-    } else {
-      // This is a repository, return a zip of all files
-      // For simplicity, we'll redirect to GitHub/GitLab's own download link
-      if (type === "github") {
-        return res.redirect(
-          `https://github.com/${owner}/${repo}/archive/refs/heads/${branch}.zip`
-        );
-      } else {
-        return res.redirect(
-          `https://gitlab.com/${owner}/${repo}/-/archive/${branch}/${repo}-${branch}.zip`
-        );
-      }
-    }
-  } catch (error) {
-    console.error("Download error:", error);
-    return res
-      .status(500)
-      .json({ error: "Failed to process download request" });
-  }
 };
 
 export default RepoForm;

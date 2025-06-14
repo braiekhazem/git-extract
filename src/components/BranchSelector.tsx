@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React from "react";
 import {
   Select,
   SelectContent,
@@ -9,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { GitBranch } from 'lucide-react';
+import { GitBranch } from "lucide-react";
 
 interface BranchSelectorProps {
   branches: string[];
@@ -22,7 +21,7 @@ const BranchSelector: React.FC<BranchSelectorProps> = ({
   branches,
   currentBranch,
   onChange,
-  disabled = false
+  disabled = false,
 }) => {
   return (
     <div className="flex items-center gap-2">
@@ -38,7 +37,7 @@ const BranchSelector: React.FC<BranchSelectorProps> = ({
         <SelectContent>
           <SelectGroup>
             <SelectLabel>Branches</SelectLabel>
-            {branches.map(branch => (
+            {branches.map((branch) => (
               <SelectItem key={branch} value={branch}>
                 {branch}
               </SelectItem>
