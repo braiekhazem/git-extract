@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { RepoFile } from "../types/repo";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -40,6 +41,8 @@ const FileTree: React.FC<FileTreeProps> = ({
   toggleFolder,
   level = 0,
 }) => {
+  const { t } = useTranslation();
+
   const getFileIconComponent = (file: RepoFile) => {
     if (file.type === "dir") {
       if (file.isLoading) {
@@ -166,11 +169,9 @@ const FileTree: React.FC<FileTreeProps> = ({
                         className="bg-popover border"
                       >
                         <p>
-                          Click to{" "}
                           {expandedFolders.has(file.path)
-                            ? "collapse"
-                            : "expand"}{" "}
-                          folder
+                            ? t("fileTree.clickToCollapse")
+                            : t("fileTree.clickToExpand")}
                         </p>
                       </TooltipContent>
                     )}
@@ -179,7 +180,7 @@ const FileTree: React.FC<FileTreeProps> = ({
                         side="right"
                         className="bg-popover border"
                       >
-                        <p>Loading folder contents...</p>
+                        <p>{t("fileTree.loadingContents")}</p>
                       </TooltipContent>
                     )}
                     {file.name.length > 30 && (

@@ -1,0 +1,127 @@
+{
+  "header": {
+    "title": "GitExtract",
+    "subtitle": "GitHub & GitLab File Extractor",
+    "palestine": "We Stand with Palestine"
+  },
+  "hero": {
+    "title": "Download Files from Git Repositories",
+    "subtitle": "Easily browse, select, and download files and folders from any public GitHub or GitLab repository without cloning the entire project.",
+    "github": "GitHub",
+    "gitlab": "GitLab",
+    "noRegistration": "No Registration Required"
+  },
+  "tabs": {
+    "repository": "From Repository",
+    "repositoryShort": "Repository",
+    "saved": "Saved Repos",
+    "savedShort": "Saved",
+    "examples": "Examples"
+  },
+  "form": {
+    "placeholder": "Enter GitHub or GitLab repository URL",
+    "explore": "Explore",
+    "download": "Download All",
+    "loading": "Loading...",
+    "invalidUrl": "Please enter a valid GitHub or GitLab repository URL",
+    "urlRequired": "Repository URL is required"
+  },
+  "examples": {
+    "title": "Try Popular Repositories",
+    "subtitle": "Explore these well-known projects to see how GitExtract works",
+    "react": "The library for web and native user interfaces.",
+    "gitlab": "The open-source version of GitLab.",
+    "nextjs": "The React framework for the web.",
+    "shadcn": "Beautifully designed components."
+  },
+  "features": {
+    "title": "Powerful Features",
+    "subtitle": "GitExtract is packed with features to make downloading files from repositories as easy as possible.",
+    "visualExplorer": "Visual File Explorer",
+    "multiSelection": "Multi-file Selection",
+    "platforms": "GitHub & GitLab",
+    "branchSelection": "Branch Selection",
+    "lazyLoading": "Lazy-loaded folders",
+    "directLinks": "Direct File Links",
+    "saveRepos": "Save Repositories",
+    "darkMode": "Dark Mode",
+    "mobileFriendly": "Mobile Friendly"
+  },
+  "modal": {
+    "loading": "Loading repository...",
+    "loadingTitle": "Loading Repository...",
+    "loadingDescription": "This may take a moment for large repositories. We're fetching the file structure and metadata.",
+    "repositoryExplorer": "Repository Explorer",
+    "branch": "Branch",
+    "selectBranch": "Select Branch",
+    "selectedFiles": "Selected Files",
+    "downloadSelected": "Download Selected",
+    "downloadAll": "Download All",
+    "downloading": "Downloading...",
+    "close": "Close",
+    "noFilesSelected": "No files selected",
+    "selectFilesToDownload": "Please select files to download",
+    "downloadProgress": "Download Progress",
+    "preparingDownload": "Preparing download...",
+    "downloadComplete": "Download complete!",
+    "downloadFailed": "Download failed",
+    "repositoryNotFound": "Repository not found",
+    "repositoryNotFoundDescription": "Unable to load the repository data. Please check the URL and try again.",
+    "tryDifferentRepository": "Try a different repository",
+    "selectAll": "Select All",
+    "unselectAll": "Unselect All",
+    "saveToExamples": "Save to Examples",
+    "saved": "Saved",
+    "selected": "selected",
+    "download": "Download",
+    "fileExplorer": "File Explorer",
+    "fileExplorerDescription": "Click on folders to expand/collapse them. Select files and folders to download.",
+    "repositoryEmpty": "Repository is empty",
+    "repositoryEmptyDescription": "This repository doesn't have any files in the current branch.",
+    "repositorySaved": "Repository saved",
+    "repositorySavedDescription": "This repository has been added to your examples."
+  },
+  "fileTree": {
+    "folder": "Folder",
+    "file": "File",
+    "loading": "Loading...",
+    "empty": "Empty folder",
+    "clickToExpand": "Click to expand folder",
+    "clickToCollapse": "Click to collapse folder",
+    "loadingContents": "Loading folder contents..."
+  },
+  "savedRepos": {
+    "title": "Your Saved Repositories",
+    "subtitle": "Quick access to your frequently used repositories",
+    "noSaved": "No saved repositories yet",
+    "saveFirst": "Save repositories while exploring to see them here",
+    "lastAccessed": "Last accessed",
+    "remove": "Remove",
+    "explore": "Explore"
+  },
+  "footer": {
+    "builtWith": "Built with ❤️ copyright 2025",
+    "description": "GitExtract - Download repository files with ease."
+  },
+  "errors": {
+    "loadRepo": "Failed to load repository",
+    "loadBranches": "Failed to load branches",
+    "loadFolder": "Failed to load folder contents",
+    "download": "Download failed",
+    "invalidRepo": "Invalid repository URL or repository not found",
+    "networkError": "Network error occurred",
+    "unknownError": "An unknown error occurred",
+    "switchBranch": "Error switching branch",
+    "switchBranchDescription": "Failed to load the new branch. Please try again."
+  },
+  "success": {
+    "repoLoaded": "Repository loaded successfully",
+    "downloadStarted": "Download started",
+    "downloadComplete": "Download completed successfully"
+  },
+  "languages": {
+    "en": "English",
+    "ar": "العربية",
+    "fr": "Français"
+  }
+}

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Card,
   CardContent,
@@ -9,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ThemeToggle } from "../components/ThemeToggle";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 import { ThemeProvider } from "../context/ThemeContext";
 import RepoForm from "../components/RepoForm";
 import {
@@ -27,6 +29,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
+  const { t } = useTranslation();
   const [repoUrl, setRepoUrl] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -70,8 +73,8 @@ const Index = () => {
     } catch (error) {
       console.error("Error handling repository:", error);
       toast({
-        title: "Error processing repository",
-        description: `Could not perform the requested action. ${
+        title: t("errors.loadRepo"),
+        description: `${t("errors.unknownError")} ${
           error instanceof Error ? `(${error.message})` : ""
         }`.trim(),
         variant: "destructive",
@@ -97,7 +100,7 @@ const Index = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-green-600/90 via-white/90 to-red-600/90"></div>
           <div className="relative z-10 flex items-center justify-center gap-2 text-sm font-medium">
             <Heart className="h-4 w-4 text-red-600 animate-pulse" />
-            <span className="text-gray-800">We Stand with Palestine</span>
+            <span className="text-gray-800">{t("header.palestine")}</span>
             <span className="text-green-700">🇵🇸</span>
             <Heart className="h-4 w-4 text-red-600 animate-pulse" />
           </div>
@@ -119,17 +122,20 @@ const Index = () => {
                   <GitBranch className="h-5 w-5 text-white" />
                 </div>
                 <span className="hidden font-bold text-lg sm:inline-block text-gradient-primary">
-                  GitExtract
+                  {t("header.title")}
                 </span>
               </a>
             </div>
             <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
               <div className="flex-1">
                 <span className="text-sm text-muted-foreground hidden md:inline">
-                  GitHub & GitLab File Extractor
+                  {t("header.subtitle")}
                 </span>
               </div>
-              <ThemeToggle />
+              <div className="flex items-center gap-2">
+                <LanguageSwitcher />
+                <ThemeToggle />
+              </div>
             </div>
           </div>
         </header>
@@ -145,28 +151,38 @@ const Index = () => {
               </div> */}
 
               <h1 className="text-center text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl font-bold leading-tight tracking-tighter animate-fade-in-up animation-delay-200 px-4">
-                Download Files from{" "}
-                <span className="text-gradient-primary">Git Repositories</span>
+                {t("hero.title")
+                  .split("Git Repositories")
+                  .map((part, index) =>
+                    index === 0 ? (
+                      <span key={index}>
+                        {part}
+                        <span className="text-gradient-primary">
+                          Git Repositories
+                        </span>
+                      </span>
+                    ) : (
+                      part
+                    )
+                  )}
               </h1>
 
               <p className="max-w-4xl text-center text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground animate-fade-in-up animation-delay-300 px-4">
-                Easily browse, select, and download files and folders from any
-                public GitHub or GitLab repository without cloning the entire
-                project.
+                {t("hero.subtitle")}
               </p>
 
               <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 text-xs md:text-sm text-muted-foreground animate-fade-in-up animation-delay-400 px-4">
                 <div className="flex items-center gap-1.5 md:gap-2">
                   <Github className="h-3 md:h-4 w-3 md:w-4 text-primary" />
-                  <span>GitHub</span>
+                  <span>{t("hero.github")}</span>
                 </div>
                 <div className="w-1 h-1 bg-muted-foreground rounded-full" />
                 <div className="flex items-center gap-1.5 md:gap-2">
                   <Gitlab className="h-3 md:h-4 w-3 md:w-4 text-orange-500" />
-                  <span>GitLab</span>
+                  <span>{t("hero.gitlab")}</span>
                 </div>
                 <div className="w-1 h-1 bg-muted-foreground rounded-full" />
-                <span>No Registration Required</span>
+                <span>{t("hero.noRegistration")}</span>
               </div>
             </section>
           </div>
@@ -184,21 +200,27 @@ const Index = () => {
                       value="repo"
                       className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-2 sm:px-4"
                     >
-                      <span className="hidden sm:inline">From Repository</span>
-                      <span className="sm:hidden">Repository</span>
+                      <span className="hidden sm:inline">
+                        {t("tabs.repository")}
+                      </span>
+                      <span className="sm:hidden">
+                        {t("tabs.repositoryShort")}
+                      </span>
                     </TabsTrigger>
                     <TabsTrigger
                       value="saved"
                       className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-2 sm:px-4"
                     >
-                      <span className="hidden sm:inline">Saved Repos</span>
-                      <span className="sm:hidden">Saved</span>
+                      <span className="hidden sm:inline">
+                        {t("tabs.saved")}
+                      </span>
+                      <span className="sm:hidden">{t("tabs.savedShort")}</span>
                     </TabsTrigger>
                     <TabsTrigger
                       value="example"
                       className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-2 sm:px-4"
                     >
-                      Examples
+                      {t("tabs.examples")}
                     </TabsTrigger>
                   </TabsList>
 
@@ -221,11 +243,10 @@ const Index = () => {
                     <div className="space-y-4 md:space-y-6">
                       <div className="text-center">
                         <h3 className="font-semibold text-base md:text-lg mb-2">
-                          Try Popular Repositories
+                          {t("examples.title")}
                         </h3>
                         <p className="text-sm md:text-base text-muted-foreground">
-                          Explore these well-known projects to see how
-                          GitExtract works
+                          {t("examples.subtitle")}
                         </p>
                       </div>
 
@@ -248,7 +269,7 @@ const Index = () => {
                                 facebook/react
                               </p>
                               <p className="text-xs md:text-sm text-muted-foreground">
-                                The library for web and native user interfaces.
+                                {t("examples.react")}
                               </p>
                             </div>
                           </CardHeader>
@@ -272,7 +293,7 @@ const Index = () => {
                                 gitlab-org/gitlab-foss
                               </p>
                               <p className="text-xs md:text-sm text-muted-foreground">
-                                The open-source version of GitLab.
+                                {t("examples.gitlab")}
                               </p>
                             </div>
                           </CardHeader>
@@ -296,7 +317,7 @@ const Index = () => {
                                 vercel/next.js
                               </p>
                               <p className="text-xs md:text-sm text-muted-foreground">
-                                The React framework for the web.
+                                {t("examples.nextjs")}
                               </p>
                             </div>
                           </CardHeader>
@@ -320,7 +341,7 @@ const Index = () => {
                                 shadcn-ui/ui
                               </p>
                               <p className="text-xs md:text-sm text-muted-foreground">
-                                Beautifully designed components.
+                                {t("examples.shadcn")}
                               </p>
                             </div>
                           </CardHeader>
@@ -337,28 +358,27 @@ const Index = () => {
             <div className="space-y-6 md:space-y-8 bg-gradient-primary-soft p-6 md:p-8 rounded-2xl border">
               <div className="text-center space-y-3 md:space-y-4">
                 <h3 className="font-bold text-xl md:text-2xl lg:text-3xl text-gradient-primary">
-                  Powerful Features
+                  {t("features.title")}
                 </h3>
                 <p className="text-muted-foreground text-sm md:text-base lg:text-lg max-w-2xl mx-auto">
-                  GitExtract is packed with features to make downloading files
-                  from repositories as easy as possible.
+                  {t("features.subtitle")}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                 {[
-                  { feature: "Visual File Explorer", delay: 0 },
-                  { feature: "Multi-file Selection", delay: 100 },
-                  { feature: "GitHub & GitLab", delay: 200 },
-                  { feature: "Branch Selection", delay: 300 },
-                  { feature: "Lazy-loaded folders", delay: 400 },
-                  { feature: "Direct File Links", delay: 500 },
-                  { feature: "Save Repositories", delay: 600 },
-                  { feature: "Dark Mode", delay: 700 },
-                  { feature: "Mobile Friendly", delay: 800 },
-                ].map(({ feature, delay }) => (
+                  { key: "visualExplorer", delay: 0 },
+                  { key: "multiSelection", delay: 100 },
+                  { key: "platforms", delay: 200 },
+                  { key: "branchSelection", delay: 300 },
+                  { key: "lazyLoading", delay: 400 },
+                  { key: "directLinks", delay: 500 },
+                  { key: "saveRepos", delay: 600 },
+                  { key: "darkMode", delay: 700 },
+                  { key: "mobileFriendly", delay: 800 },
+                ].map(({ key, delay }) => (
                   <div
-                    key={feature}
+                    key={key}
                     className="flex items-center gap-2 md:gap-3 bg-background/80 backdrop-blur-sm p-3 md:p-4 rounded-xl shadow-sm card-enhanced"
                     style={{ animationDelay: `${delay}ms` }}
                   >
@@ -366,7 +386,7 @@ const Index = () => {
                       <Check className="h-3 md:h-4 w-3 md:w-4" />
                     </div>
                     <span className="font-medium text-sm md:text-base">
-                      {feature}
+                      {t(`features.${key}`)}
                     </span>
                   </div>
                 ))}
@@ -378,7 +398,7 @@ const Index = () => {
         <footer className="py-4 md:py-6 mt-8 border-t bg-gradient-primary-soft">
           <div className="container flex flex-col items-center justify-between gap-2 md:flex-row">
             <p className="text-xs md:text-sm leading-loose text-center text-muted-foreground md:text-left">
-              Built with ❤️ copyright 2025{" "}
+              {t("footer.builtWith")}{" "}
               <a
                 href="https://www.linkedin.com/in/braiek-hazem/"
                 target="_blank"
@@ -387,7 +407,7 @@ const Index = () => {
               </a>
             </p>
             <p className="text-xs md:text-sm leading-loose text-center text-muted-foreground md:text-left">
-              GitExtract - Download repository files with ease.
+              {t("footer.description")}
             </p>
           </div>
         </footer>

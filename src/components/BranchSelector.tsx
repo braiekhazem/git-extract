@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
   Select,
   SelectContent,
@@ -23,6 +24,8 @@ const BranchSelector: React.FC<BranchSelectorProps> = ({
   onChange,
   disabled = false,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="flex items-center gap-2">
       <GitBranch className="h-4 w-4 text-muted-foreground" />
@@ -32,11 +35,11 @@ const BranchSelector: React.FC<BranchSelectorProps> = ({
         disabled={disabled}
       >
         <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Select branch" />
+          <SelectValue placeholder={t("modal.selectBranch")} />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
-            <SelectLabel>Branches</SelectLabel>
+            <SelectLabel>{t("modal.selectBranch")}</SelectLabel>
             {branches.map((branch) => (
               <SelectItem key={branch} value={branch}>
                 {branch}

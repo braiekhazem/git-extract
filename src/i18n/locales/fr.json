@@ -1,0 +1,127 @@
+{
+  "header": {
+    "title": "GitExtract",
+    "subtitle": "Extracteur de fichiers GitHub & GitLab",
+    "palestine": "Nous soutenons la Palestine"
+  },
+  "hero": {
+    "title": "Télécharger des fichiers depuis les dépôts Git",
+    "subtitle": "Parcourez, sélectionnez et téléchargez facilement des fichiers et dossiers depuis n'importe quel dépôt GitHub ou GitLab public sans cloner l'ensemble du projet.",
+    "github": "GitHub",
+    "gitlab": "GitLab",
+    "noRegistration": "Aucune inscription requise"
+  },
+  "tabs": {
+    "repository": "Depuis le dépôt",
+    "repositoryShort": "Dépôt",
+    "saved": "Dépôts sauvegardés",
+    "savedShort": "Sauvegardés",
+    "examples": "Exemples"
+  },
+  "form": {
+    "placeholder": "Entrez l'URL du dépôt GitHub ou GitLab",
+    "explore": "Explorer",
+    "download": "Tout télécharger",
+    "loading": "Chargement...",
+    "invalidUrl": "Veuillez entrer une URL de dépôt GitHub ou GitLab valide",
+    "urlRequired": "L'URL du dépôt est requise"
+  },
+  "examples": {
+    "title": "Essayez des dépôts populaires",
+    "subtitle": "Explorez ces projets bien connus pour voir comment GitExtract fonctionne",
+    "react": "La bibliothèque pour les interfaces utilisateur web et natives.",
+    "gitlab": "La version open source de GitLab.",
+    "nextjs": "Le framework React pour le web.",
+    "shadcn": "Composants magnifiquement conçus."
+  },
+  "features": {
+    "title": "Fonctionnalités puissantes",
+    "subtitle": "GitExtract regorge de fonctionnalités pour rendre le téléchargement de fichiers depuis les dépôts aussi facile que possible.",
+    "visualExplorer": "Explorateur de fichiers visuel",
+    "multiSelection": "Sélection multi-fichiers",
+    "platforms": "GitHub & GitLab",
+    "branchSelection": "Sélection de branche",
+    "lazyLoading": "Dossiers chargés à la demande",
+    "directLinks": "Liens directs vers les fichiers",
+    "saveRepos": "Sauvegarder les dépôts",
+    "darkMode": "Mode sombre",
+    "mobileFriendly": "Compatible mobile"
+  },
+  "modal": {
+    "loading": "Chargement du dépôt...",
+    "loadingTitle": "Chargement du dépôt...",
+    "loadingDescription": "Cela peut prendre un moment pour les gros dépôts. Nous récupérons la structure des fichiers et les métadonnées.",
+    "repositoryExplorer": "Explorateur de dépôt",
+    "branch": "Branche",
+    "selectBranch": "Sélectionner la branche",
+    "selectedFiles": "Fichiers sélectionnés",
+    "downloadSelected": "Télécharger la sélection",
+    "downloadAll": "Tout télécharger",
+    "downloading": "Téléchargement...",
+    "close": "Fermer",
+    "noFilesSelected": "Aucun fichier sélectionné",
+    "selectFilesToDownload": "Veuillez sélectionner des fichiers à télécharger",
+    "downloadProgress": "Progression du téléchargement",
+    "preparingDownload": "Préparation du téléchargement...",
+    "downloadComplete": "Téléchargement terminé !",
+    "downloadFailed": "Échec du téléchargement",
+    "repositoryNotFound": "Dépôt introuvable",
+    "repositoryNotFoundDescription": "Impossible de charger les données du dépôt. Veuillez vérifier l'URL et réessayer.",
+    "tryDifferentRepository": "Essayer un autre dépôt",
+    "selectAll": "Tout sélectionner",
+    "unselectAll": "Tout désélectionner",
+    "saveToExamples": "Sauvegarder dans les exemples",
+    "saved": "Sauvegardé",
+    "selected": "sélectionné",
+    "download": "Télécharger",
+    "fileExplorer": "Explorateur de fichiers",
+    "fileExplorerDescription": "Cliquez sur les dossiers pour les développer/réduire. Sélectionnez les fichiers et dossiers à télécharger.",
+    "repositoryEmpty": "Le dépôt est vide",
+    "repositoryEmptyDescription": "Ce dépôt ne contient aucun fichier dans la branche actuelle.",
+    "repositorySaved": "Dépôt sauvegardé",
+    "repositorySavedDescription": "Ce dépôt a été ajouté à vos exemples."
+  },
+  "fileTree": {
+    "folder": "Dossier",
+    "file": "Fichier",
+    "loading": "Chargement...",
+    "empty": "Dossier vide",
+    "clickToExpand": "Cliquer pour développer le dossier",
+    "clickToCollapse": "Cliquer pour réduire le dossier",
+    "loadingContents": "Chargement du contenu du dossier..."
+  },
+  "savedRepos": {
+    "title": "Vos dépôts sauvegardés",
+    "subtitle": "Accès rapide à vos dépôts fréquemment utilisés",
+    "noSaved": "Aucun dépôt sauvegardé pour le moment",
+    "saveFirst": "Sauvegardez des dépôts en les explorant pour les voir ici",
+    "lastAccessed": "Dernier accès",
+    "remove": "Supprimer",
+    "explore": "Explorer"
+  },
+  "footer": {
+    "builtWith": "Créé avec ❤️ copyright 2025",
+    "description": "GitExtract - Téléchargez les fichiers de dépôt en toute simplicité."
+  },
+  "errors": {
+    "loadRepo": "Échec du chargement du dépôt",
+    "loadBranches": "Échec du chargement des branches",
+    "loadFolder": "Échec du chargement du contenu du dossier",
+    "download": "Échec du téléchargement",
+    "invalidRepo": "URL de dépôt invalide ou dépôt introuvable",
+    "networkError": "Erreur réseau survenue",
+    "unknownError": "Une erreur inconnue s'est produite",
+    "switchBranch": "Erreur lors du changement de branche",
+    "switchBranchDescription": "Échec du chargement de la nouvelle branche. Veuillez réessayer."
+  },
+  "success": {
+    "repoLoaded": "Dépôt chargé avec succès",
+    "downloadStarted": "Téléchargement commencé",
+    "downloadComplete": "Téléchargement terminé avec succès"
+  },
+  "languages": {
+    "en": "English",
+    "ar": "العربية",
+    "fr": "Français"
+  }
+}

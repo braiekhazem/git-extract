@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -37,6 +38,7 @@ interface RepoFormProps {
 }
 
 const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
+  const { t } = useTranslation();
   const [url, setUrl] = useState("");
   const [action, setAction] = useState<RepoActionType>("explore");
   const [downloading, setDownloading] = useState(false);
@@ -54,9 +56,8 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
       const link = generateDownloadLink(url);
       navigator.clipboard.writeText(link);
       toast({
-        title: "Link Copied",
-        description:
-          "A shareable download link has been copied to your clipboard.",
+        title: t("success.downloadStarted"),
+        description: t("success.downloadComplete"),
       });
       return;
     }
@@ -65,8 +66,8 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
       const parsedRepo = parseRepoUrl(url);
       if (!parsedRepo) {
         toast({
-          title: "Invalid URL",
-          description: "Please enter a valid GitHub or GitLab repository URL",
+          title: t("form.invalidUrl"),
+          description: t("form.urlRequired"),
           variant: "destructive",
         });
         return;
@@ -78,8 +79,8 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
         const repoData = await loadRepoData(url);
         if (!repoData) {
           toast({
-            title: "Repository Not Found",
-            description: "Could not load repository data",
+            title: t("errors.loadRepo"),
+            description: t("errors.invalidRepo"),
             variant: "destructive",
           });
           return;
@@ -107,9 +108,8 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
             });
 
             toast({
-              title: "Repository Downloaded",
-              description:
-                "The repository has been downloaded successfully as a ZIP file.",
+              title: t("success.downloadComplete"),
+              description: t("success.downloadComplete"),
             });
           } else {
             // For files or folders, use the enhanced collection method
@@ -132,8 +132,8 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
               setDownloadProgress(100);
 
               toast({
-                title: "File Downloaded",
-                description: `File ${fileName} has been downloaded successfully.`,
+                title: t("success.downloadComplete"),
+                description: t("success.downloadComplete"),
               });
             } catch (fileError) {
               // If file fetch failed, it's probably a directory
@@ -148,13 +148,13 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
                 });
 
                 toast({
-                  title: "Folder Downloaded",
-                  description: `The folder has been downloaded successfully with ${allFiles.length} files.`,
+                  title: t("success.downloadComplete"),
+                  description: t("success.downloadComplete"),
                 });
               } else {
                 toast({
-                  title: "Download Failed",
-                  description: "No files found in the specified path.",
+                  title: t("errors.download"),
+                  description: t("errors.unknownError"),
                   variant: "destructive",
                 });
               }
@@ -163,9 +163,8 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
         } catch (error) {
           setDownloadError(true);
           toast({
-            title: "Download Failed",
-            description:
-              "Could not download the content. It might not exist or you might not have access to it.",
+            title: t("errors.download"),
+            description: t("errors.networkError"),
             variant: "destructive",
           });
 
@@ -194,8 +193,8 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
     } catch (error) {
       console.error("Error:", error);
       toast({
-        title: "Error",
-        description: "Could not process the URL. Please ensure it's correct.",
+        title: t("errors.unknownError"),
+        description: t("errors.networkError"),
         variant: "destructive",
       });
     }
@@ -207,23 +206,23 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
         return (
           <>
             <Search className="h-4 w-4 mr-2" />
-            <span className="hidden sm:inline">Explore</span>
-            <span className="sm:hidden">Browse</span>
+            <span className="hidden sm:inline">{t("form.explore")}</span>
+            <span className="sm:hidden">{t("form.explore")}</span>
           </>
         );
       case "download":
         return (
           <>
             <Download className="h-4 w-4 mr-2" />
-            Download
+            {t("form.download")}
           </>
         );
       case "download-link":
         return (
           <>
             <Link className="h-4 w-4 mr-2" />
-            <span className="hidden sm:inline">Get Link</span>
-            <span className="sm:hidden">Link</span>
+            <span className="hidden sm:inline">{t("form.download")}</span>
+            <span className="sm:hidden">{t("form.download")}</span>
           </>
         );
     }
@@ -238,7 +237,7 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
               htmlFor="repo-url"
               className="font-semibold text-sm md:text-base animate-fade-in-up"
             >
-              Enter a public repository URL
+              {t("form.placeholder")}
             </label>
             <div className="relative animate-fade-in-up animation-delay-200">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
@@ -249,7 +248,7 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
                 type="text"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                placeholder="e.g., https://github.com/facebook/react"
+                placeholder={t("form.placeholder")}
                 className="pl-10 h-11 md:h-12 text-sm md:text-base focus-enhanced border-2 hover:border-primary/30 transition-colors"
                 disabled={isLoading || downloading}
                 autoFocus
@@ -260,16 +259,18 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
           <div className="flex flex-wrap items-center gap-2 md:gap-3 text-xs md:text-sm text-muted-foreground animate-fade-in-up animation-delay-300">
             <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 bg-primary/10 rounded-full">
               <Github className="h-3 md:h-3.5 w-3 md:w-3.5 text-primary" />
-              <span className="font-medium">GitHub</span>
+              <span className="font-medium">{t("hero.github")}</span>
             </div>
             <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 bg-orange-500/10 rounded-full">
               <Gitlab className="h-3 md:h-3.5 w-3 md:w-3.5 text-orange-500" />
-              <span className="font-medium">GitLab</span>
+              <span className="font-medium">{t("hero.gitlab")}</span>
             </div>
             <span className="text-xs hidden sm:inline">
-              Supports public repository, folder, and file URLs.
+              {t("hero.noRegistration")}
             </span>
-            <span className="text-xs sm:hidden">Supports public URLs</span>
+            <span className="text-xs sm:hidden">
+              {t("hero.noRegistration")}
+            </span>
           </div>
         </div>
 
@@ -304,9 +305,9 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
               >
                 <Search className="h-4 w-4 mr-2 text-primary" />
                 <div>
-                  <div className="font-medium text-sm">Explore Files</div>
+                  <div className="font-medium text-sm">{t("form.explore")}</div>
                   <div className="text-xs text-muted-foreground">
-                    Browse and select files
+                    {t("form.explore")}
                   </div>
                 </div>
               </DropdownMenuItem>
@@ -316,9 +317,11 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
               >
                 <Download className="h-4 w-4 mr-2 text-primary" />
                 <div>
-                  <div className="font-medium text-sm">Direct Download</div>
+                  <div className="font-medium text-sm">
+                    {t("form.download")}
+                  </div>
                   <div className="text-xs text-muted-foreground">
-                    Download entire repository
+                    {t("form.download")}
                   </div>
                 </div>
               </DropdownMenuItem>
@@ -328,9 +331,11 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
               >
                 <Link className="h-4 w-4 mr-2 text-primary" />
                 <div>
-                  <div className="font-medium text-sm">Get Download Link</div>
+                  <div className="font-medium text-sm">
+                    {t("form.download")}
+                  </div>
                   <div className="text-xs text-muted-foreground">
-                    Copy shareable link
+                    {t("form.download")}
                   </div>
                 </div>
               </DropdownMenuItem>

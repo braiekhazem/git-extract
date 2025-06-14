@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -33,6 +34,7 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
   onClose,
   initialAction,
 }) => {
+  const { t } = useTranslation();
   const [repoData, setRepoData] = useState<RepoData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedFilePaths, setSelectedFilePaths] = useState<Set<string>>(
@@ -94,11 +96,10 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
       }
     } catch (error) {
       toast({
-        title: "Error loading repository",
-        description:
-          `Failed to load repository data. Please check the URL and try again. ${
-            error instanceof Error ? `(${error.message})` : ""
-          }`.trim(),
+        title: t("errors.loadRepo"),
+        description: `${t("errors.loadRepo")}. ${t("errors.networkError")} ${
+          error instanceof Error ? `(${error.message})` : ""
+        }`.trim(),
         variant: "destructive",
       });
       console.error("Error loading repository:", error);
@@ -119,8 +120,8 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
     } catch (error) {
       console.error("Error switching branch:", error);
       toast({
-        title: "Error switching branch",
-        description: `Failed to load the new branch. Please try again. ${
+        title: t("errors.switchBranch"),
+        description: `${t("errors.switchBranchDescription")} ${
           error instanceof Error ? `(${error.message})` : ""
         }`.trim(),
         variant: "destructive",
@@ -201,11 +202,8 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
       };
 
       setRepoData((prevData) => {
-        if (!prevData) return null;
-        return {
-          ...prevData,
-          files: updateFileTree(prevData.files),
-        };
+        if (!prevData) return prevData;
+        return { ...prevData, files: updateFileTree(prevData.files) };
       });
 
       try {
@@ -219,7 +217,7 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
           repoData
         );
 
-        // Update the repo data with the loaded contents
+        // Update the file tree with the loaded contents
         const updateFileTreeWithContents = (files: RepoFile[]): RepoFile[] => {
           return files.map((file) => {
             if (file.path === path) {
@@ -245,23 +243,23 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
         };
 
         setRepoData((prevData) => {
-          if (!prevData) return null;
+          if (!prevData) return prevData;
           return {
             ...prevData,
             files: updateFileTreeWithContents(prevData.files),
           };
         });
       } catch (error) {
-        console.error(`Error loading folder contents for ${path}:`, error);
+        console.error("Error loading folder contents:", error);
         toast({
-          title: "Error loading folder",
-          description: `Failed to load folder contents. Please try again. ${
+          title: t("errors.loadFolder"),
+          description: `${t("errors.loadFolder")} ${
             error instanceof Error ? `(${error.message})` : ""
           }`.trim(),
           variant: "destructive",
         });
 
-        // Reset loading state in case of error
+        // Reset the loading state on error
         const resetLoadingState = (files: RepoFile[]): RepoFile[] => {
           return files.map((file) => {
             if (file.path === path) {
@@ -279,14 +277,10 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
         };
 
         setRepoData((prevData) => {
-          if (!prevData) return null;
-          return {
-            ...prevData,
-            files: resetLoadingState(prevData.files),
-          };
+          if (!prevData) return prevData;
+          return { ...prevData, files: resetLoadingState(prevData.files) };
         });
-
-        return; // Don't expand the folder if loading failed
+        return;
       }
     }
 
@@ -300,7 +294,6 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
 
   const selectAll = () => {
     if (!repoData) return;
-
     const allPaths = getAllPaths(repoData.files);
     setSelectedFilePaths(new Set(allPaths));
   };
@@ -310,157 +303,174 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
   };
 
   const getAllPaths = (files: RepoFile[]): string[] => {
-    let paths: string[] = [];
-
+    const paths: string[] = [];
     for (const file of files) {
       paths.push(file.path);
-
       if (file.type === "dir" && file.children) {
-        paths = [...paths, ...getAllPaths(file.children)];
+        paths.push(...getAllPaths(file.children));
       }
     }
-
     return paths;
   };
 
   const handleAutoDownload = async () => {
-    if (!repoData || downloading) return;
-
-    setDownloading(true);
-    setProgress(0);
-    setIsComplete(false);
-    setIsError(false);
-    setShowProgress(true);
+    if (!repoData) return;
 
     try {
-      // Get all files for download, bypassing selection state
-      const allFiles = await getFilesForDownload(true); // Pass a flag to get all files
+      setDownloading(true);
+      setProgress(0);
+      setIsComplete(false);
+      setIsError(false);
+      setShowProgress(true);
 
-      if (allFiles.length === 0) {
+      // Get all files for download
+      const filesToDownload = await getFilesForDownload(true);
+
+      if (filesToDownload.length === 0) {
         toast({
-          title: "Repository is empty",
-          description: "There are no files to download in this repository.",
+          title: t("modal.noFilesSelected"),
+          description: t("modal.selectFilesToDownload"),
+          variant: "destructive",
         });
         setDownloading(false);
         setShowProgress(false);
         return;
       }
 
-      // Create and download the ZIP
-      await createAndDownloadZip(repoData, allFiles, setProgress);
+      // Create and download the zip
+      await createAndDownloadZip(repoData, filesToDownload, (progress) => {
+        setProgress(progress);
+      });
 
       setIsComplete(true);
       toast({
-        title: "Download complete",
-        description: `Successfully downloaded ${allFiles.length} files.`,
+        title: t("success.downloadComplete"),
+        description: t("success.downloadComplete"),
       });
+
+      // Hide progress after a short delay
+      setTimeout(() => {
+        setShowProgress(false);
+        setDownloading(false);
+        setProgress(0);
+        setIsComplete(false);
+      }, 2000);
     } catch (error) {
-      console.error("Auto download error:", error);
+      console.error("Error during auto download:", error);
       setIsError(true);
       toast({
-        title: "Download failed",
-        description: `An error occurred while creating your ZIP file. ${
+        title: t("errors.download"),
+        description: `${t("errors.download")} ${
           error instanceof Error ? `(${error.message})` : ""
         }`.trim(),
         variant: "destructive",
       });
-    } finally {
-      // Do not set `downloading` to false here, to allow the progress UI to be shown
-      // until the user manually closes it.
+
+      setTimeout(() => {
+        setShowProgress(false);
+        setDownloading(false);
+        setProgress(0);
+        setIsError(false);
+      }, 3000);
     }
   };
 
   const handleDownload = async () => {
-    if (!repoData) return;
-
-    if (selectedFilePaths.size === 0) {
+    if (!repoData || selectedFilePaths.size === 0) {
       toast({
-        title: "No files selected",
-        description: "Please select at least one file or folder to download.",
+        title: t("modal.noFilesSelected"),
+        description: t("modal.selectFilesToDownload"),
         variant: "destructive",
       });
       return;
     }
 
-    setDownloading(true);
-    setProgress(0);
-    setIsComplete(false);
-    setIsError(false);
-    setShowProgress(true);
-
     try {
-      // Get all selected files and their data, loading contents if necessary
-      const allFiles = await getFilesForDownload();
+      setDownloading(true);
+      setProgress(0);
+      setIsComplete(false);
+      setIsError(false);
+      setShowProgress(true);
 
-      if (allFiles.length === 0) {
+      // Get files for download
+      const filesToDownload = await getFilesForDownload();
+
+      if (filesToDownload.length === 0) {
         toast({
-          title: "No files to download",
-          description:
-            "The selected folders might be empty or could not be loaded.",
-          variant: "destructive", // Changed to "default" to be less alarming
+          title: t("modal.noFilesSelected"),
+          description: t("modal.selectFilesToDownload"),
+          variant: "destructive",
         });
         setDownloading(false);
         setShowProgress(false);
         return;
       }
 
-      // Create and download the ZIP
-      await createAndDownloadZip(repoData, allFiles, setProgress);
+      // Create and download the zip
+      await createAndDownloadZip(repoData, filesToDownload, (progress) => {
+        setProgress(progress);
+      });
 
       setIsComplete(true);
       toast({
-        title: "Download complete",
-        description: `Successfully downloaded ${allFiles.length} files.`,
+        title: t("success.downloadComplete"),
+        description: t("success.downloadComplete"),
       });
+
+      // Hide progress after a short delay
+      setTimeout(() => {
+        setShowProgress(false);
+        setDownloading(false);
+        setProgress(0);
+        setIsComplete(false);
+      }, 2000);
     } catch (error) {
-      console.error("Download error:", error);
+      console.error("Error during download:", error);
       setIsError(true);
       toast({
-        title: "Download failed",
-        description: `An error occurred while creating your ZIP file. ${
+        title: t("errors.download"),
+        description: `${t("errors.download")} ${
           error instanceof Error ? `(${error.message})` : ""
         }`.trim(),
         variant: "destructive",
       });
-    } finally {
-      setDownloading(false);
+
+      setTimeout(() => {
+        setShowProgress(false);
+        setDownloading(false);
+        setProgress(0);
+        setIsError(false);
+      }, 3000);
     }
   };
 
   const getFilesForDownload = async (getAll = false): Promise<RepoFile[]> => {
     if (!repoData) return [];
 
-    const updatedRepoData = { ...repoData }; // Work on a copy
-    const filesToDownload: RepoFile[] = [];
-    let stateNeedsUpdate = false;
+    const selectedPaths = getAll
+      ? new Set(getAllPaths(repoData.files))
+      : selectedFilePaths;
 
-    // Recursive function to load directory contents
     const loadDirRecursively = async (dir: RepoFile): Promise<RepoFile[]> => {
-      let children = dir.children || [];
-      if (!dir.loaded) {
+      const files: RepoFile[] = [];
+
+      if (!dir.loaded && dir.children && dir.children.length === 0) {
         try {
           const contents = await loadDirectoryContents(
-            updatedRepoData.owner,
-            updatedRepoData.repo,
-            updatedRepoData.currentBranch,
-            updatedRepoData.type,
+            repoData.owner,
+            repoData.repo,
+            repoData.currentBranch,
+            repoData.type,
             dir.path,
-            updatedRepoData
+            repoData
           );
-          children = contents;
-          dir.loaded = true; // Mutate the copy
-          dir.children = children; // Mutate the copy
-          stateNeedsUpdate = true;
+          dir.children = contents;
+          dir.loaded = true;
         } catch (error) {
-          console.error(
-            `Error loading folder contents for ${dir.path}:`,
-            error
-          );
+          console.error(`Error loading directory ${dir.path}:`, error);
           toast({
-            title: "Error loading folder",
-            description: `Failed to load contents for ${
-              dir.path
-            }. It will be skipped. ${
+            title: t("errors.loadFolder"),
+            description: `${t("errors.loadFolder")} ${dir.path} ${
               error instanceof Error ? `(${error.message})` : ""
             }`.trim(),
             variant: "destructive",
@@ -469,91 +479,96 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
         }
       }
 
-      const files: RepoFile[] = [];
-      for (const child of children) {
-        if (child.type === "file") {
-          files.push(child);
-        } else if (child.type === "dir") {
-          files.push(...(await loadDirRecursively(child)));
+      if (dir.children) {
+        for (const child of dir.children) {
+          if (child.type === "file") {
+            files.push(child);
+          } else if (child.type === "dir") {
+            const childFiles = await loadDirRecursively(child);
+            files.push(...childFiles);
+          }
         }
       }
+
       return files;
     };
 
-    // Main logic to collect files
     const collectFiles = async (files: RepoFile[], parentPath: string = "") => {
-      for (const file of files) {
-        const isSelected = getAll || selectedFilePaths.has(file.path);
-        const isDescendant =
-          !getAll && parentPath && selectedFilePaths.has(parentPath);
+      const result: RepoFile[] = [];
 
-        if (isSelected || isDescendant) {
+      for (const file of files) {
+        const fullPath = parentPath ? `${parentPath}/${file.name}` : file.name;
+
+        if (selectedPaths.has(file.path)) {
           if (file.type === "file") {
-            filesToDownload.push(file);
+            result.push(file);
           } else if (file.type === "dir") {
-            const allNestedFiles = await loadDirRecursively(file);
-            filesToDownload.push(...allNestedFiles);
+            const dirFiles = await loadDirRecursively(file);
+            result.push(...dirFiles);
           }
         } else if (file.type === "dir" && file.children) {
-          // If not selected, continue searching in its children
-          await collectFiles(file.children, file.path);
+          const childFiles = await collectFiles(file.children, file.path);
+          result.push(...childFiles);
         }
       }
+
+      return result;
     };
 
-    // Create a deep enough copy for mutation during collection
-    const repoFilesCopy = JSON.parse(JSON.stringify(updatedRepoData.files));
-    await collectFiles(repoFilesCopy);
+    try {
+      const filesToDownload = await collectFiles(repoData.files);
 
-    // Update the main state tree if any directories were loaded
-    if (stateNeedsUpdate) {
+      // Merge loaded data back into the main state tree
       const mergeLoadedData = (
         currentTree: RepoFile[],
         loadedTree: RepoFile[]
       ): RepoFile[] => {
-        return currentTree.map((currentItem) => {
-          const loadedItem = loadedTree.find(
-            (item) => item.path === currentItem.path
+        return currentTree.map((currentFile) => {
+          // Find corresponding file in loaded tree
+          const loadedFile = loadedTree.find(
+            (f) => f.path === currentFile.path
           );
 
-          if (
-            currentItem.type === "dir" &&
-            loadedItem &&
-            loadedItem.type === "dir"
-          ) {
-            // Merge the loaded data into the current state.
-            // The loaded item has the most up-to-date content (children),
-            // while the current item has the latest UI state (like `isLoading`).
+          if (loadedFile && currentFile.type === "dir") {
+            // If this directory was loaded, update it
             return {
-              ...currentItem,
-              ...loadedItem,
-              children:
-                currentItem.children &&
-                currentItem.children.length > 0 &&
-                loadedItem.children
-                  ? mergeLoadedData(currentItem.children, loadedItem.children)
-                  : loadedItem.children || currentItem.children,
+              ...currentFile,
+              children: loadedFile.children || currentFile.children,
+              loaded: loadedFile.loaded || currentFile.loaded,
+            };
+          } else if (currentFile.type === "dir" && currentFile.children) {
+            // Recursively merge children
+            return {
+              ...currentFile,
+              children: mergeLoadedData(currentFile.children, loadedTree),
             };
           }
 
-          // For files or items that weren't loaded, keep the current version.
-          return currentItem;
+          return currentFile;
         });
       };
 
+      // Update the main state with any newly loaded directory contents
       setRepoData((prevData) => {
-        if (!prevData) return null;
+        if (!prevData) return prevData;
         return {
           ...prevData,
-          files: mergeLoadedData(prevData.files, repoFilesCopy),
+          files: mergeLoadedData(prevData.files, repoData.files),
         };
       });
-    }
 
-    // Remove duplicates
-    return Array.from(
-      new Map(filesToDownload.map((f) => [f.path, f])).values()
-    );
+      return filesToDownload;
+    } catch (error) {
+      console.error("Error collecting files for download:", error);
+      toast({
+        title: t("errors.download"),
+        description: `${t("errors.download")} ${
+          error instanceof Error ? `(${error.message})` : ""
+        }`.trim(),
+        variant: "destructive",
+      });
+      return [];
+    }
   };
 
   const handleSaveRepo = () => {
@@ -562,8 +577,8 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
     saveRepoToExamples(repoData);
     setSaved(true);
     toast({
-      title: "Repository saved",
-      description: "This repository has been added to your examples.",
+      title: t("modal.repositorySaved"),
+      description: t("modal.repositorySavedDescription"),
     });
   };
 
@@ -588,14 +603,14 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
               <div>
                 <DialogTitle className="text-xl font-semibold">
                   {loading
-                    ? "Loading Repository..."
+                    ? t("modal.loadingTitle")
                     : repoData
                     ? `${repoData.owner}/${repoData.repo}`
-                    : "Repository Explorer"}
+                    : t("modal.repositoryExplorer")}
                 </DialogTitle>
                 {repoData && !loading && (
                   <p className="text-sm text-muted-foreground mt-1">
-                    Branch: {repoData.currentBranch}
+                    {t("modal.branch")}: {repoData.currentBranch}
                   </p>
                 )}
               </div>
@@ -627,11 +642,10 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
               <Loader2 className="h-12 w-12 animate-spin text-primary" />
             </div>
             <h3 className="text-2xl font-semibold mb-2">
-              Loading repository data...
+              {t("modal.loadingDescription")}
             </h3>
             <p className="text-muted-foreground text-center max-w-md">
-              This may take a moment for large repositories. We're fetching the
-              file structure and metadata.
+              {t("modal.loadingDescription")}
             </p>
           </div>
         ) : !repoData ? (
@@ -640,14 +654,13 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
               <X className="h-12 w-12 text-red-500" />
             </div>
             <h3 className="text-2xl font-semibold text-red-500 mb-2">
-              Repository not found
+              {t("modal.repositoryNotFound")}
             </h3>
             <p className="text-muted-foreground mb-6 text-center max-w-md">
-              Unable to load the repository data. Please check the URL and try
-              again.
+              {t("modal.repositoryNotFoundDescription")}
             </p>
             <Button onClick={onClose} className="btn-primary-gradient">
-              Try a different repository
+              {t("modal.tryDifferentRepository")}
             </Button>
           </div>
         ) : (
@@ -661,7 +674,7 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
                   disabled={downloading}
                   className="hover-lift bg-background/80"
                 >
-                  Select All
+                  {t("modal.selectAll")}
                 </Button>
                 <Button
                   variant="outline"
@@ -670,7 +683,7 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
                   disabled={downloading}
                   className="hover-lift bg-background/80"
                 >
-                  Unselect All
+                  {t("modal.unselectAll")}
                 </Button>
                 <Button
                   variant="outline"
@@ -680,14 +693,14 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
                   className="hover-lift bg-background/80"
                 >
                   <Save className="h-4 w-4 mr-2" />
-                  {saved ? "Saved" : "Save to Examples"}
+                  {saved ? t("modal.saved") : t("modal.saveToExamples")}
                 </Button>
                 {selectedCount > 0 && (
                   <Badge
                     variant="secondary"
                     className="bg-primary/10 text-primary"
                   >
-                    {selectedCount} selected
+                    {selectedCount} {t("modal.selected")}
                   </Badge>
                 )}
               </div>
@@ -699,12 +712,12 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
                 {downloading ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Downloading...
+                    {t("modal.downloading")}
                   </>
                 ) : (
                   <>
                     <Download className="h-4 w-4 mr-2" />
-                    Download ({selectedCount})
+                    {t("modal.download")} ({selectedCount})
                   </>
                 )}
               </Button>
@@ -716,11 +729,12 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
                   <div className="text-center p-4 bg-info/10 rounded-lg border border-info/20">
                     <div className="flex items-center justify-center gap-2 text-info mb-2">
                       <Folder className="h-4 w-4" />
-                      <span className="font-medium">File Explorer</span>
+                      <span className="font-medium">
+                        {t("modal.fileExplorer")}
+                      </span>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Click on folders to expand/collapse them. Select files and
-                      folders to download.
+                      {t("modal.fileExplorerDescription")}
                     </p>
                   </div>
                   <FileTree
@@ -739,11 +753,10 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
                     </div>
                     <div>
                       <h3 className="text-lg font-medium mb-2">
-                        Repository is empty
+                        {t("modal.repositoryEmpty")}
                       </h3>
                       <p className="text-muted-foreground">
-                        This repository doesn't have any files in the current
-                        branch.
+                        {t("modal.repositoryEmptyDescription")}
                       </p>
                     </div>
                   </div>
