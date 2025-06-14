@@ -14,11 +14,8 @@ import {
   saveRepoToExamples,
   loadDirectoryContents,
 } from "../services/repoService";
-import {
-  createAndDownloadZip,
-  getSelectedFiles,
-} from "../services/downloadService";
-import { Download, Loader2, Save, X, Folder } from "lucide-react";
+import { createAndDownloadZip } from "../services/downloadService";
+import { Download, Loader2, Save, X, Folder, GitBranch } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import DownloadProgress from "./DownloadProgress";
 import { useToast } from "@/hooks/use-toast";
@@ -581,17 +578,29 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
         if (!isOpen) onClose();
       }}
     >
-      <DialogContent className="max-w-4xl w-full h-[80vh] p-0 flex flex-col">
-        <DialogHeader className="p-4 border-b">
+      <DialogContent className="max-w-5xl w-full h-[85vh] p-0 flex flex-col gap-0 animate-slide-in-from-bottom">
+        <DialogHeader className="p-4 border-b bg-gradient-primary-soft">
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-lg font-medium">
-              {loading
-                ? "Loading Repository..."
-                : repoData
-                ? `${repoData.owner}/${repoData.repo}`
-                : "Repository Explorer"}
-            </DialogTitle>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-primary/20">
+                <GitBranch className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl font-semibold">
+                  {loading
+                    ? "Loading Repository..."
+                    : repoData
+                    ? `${repoData.owner}/${repoData.repo}`
+                    : "Repository Explorer"}
+                </DialogTitle>
+                {repoData && !loading && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Branch: {repoData.currentBranch}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
               {repoData && (
                 <BranchSelector
                   branches={repoData.branches}
@@ -604,7 +613,7 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
                 variant="ghost"
                 size="icon"
                 onClick={onClose}
-                className="ml-auto"
+                className="rounded-full hover:bg-muted/50 h-8 w-8"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -613,32 +622,44 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
         </DialogHeader>
 
         {loading ? (
-          <div className="flex flex-col items-center justify-center flex-1 p-8">
-            <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-            <h3 className="text-xl font-medium">Loading repository data...</h3>
-            <p className="text-muted-foreground">
-              This may take a moment for large repositories.
+          <div className="flex flex-col items-center justify-center flex-1 p-12">
+            <div className="p-4 rounded-full bg-primary/10 mb-6">
+              <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            </div>
+            <h3 className="text-2xl font-semibold mb-2">
+              Loading repository data...
+            </h3>
+            <p className="text-muted-foreground text-center max-w-md">
+              This may take a moment for large repositories. We're fetching the
+              file structure and metadata.
             </p>
           </div>
         ) : !repoData ? (
-          <div className="flex flex-col items-center justify-center flex-1 p-8">
-            <h3 className="text-xl font-medium text-red-500">
+          <div className="flex flex-col items-center justify-center flex-1 p-12">
+            <div className="p-4 rounded-full bg-red-500/10 mb-6">
+              <X className="h-12 w-12 text-red-500" />
+            </div>
+            <h3 className="text-2xl font-semibold text-red-500 mb-2">
               Repository not found
             </h3>
-            <p className="text-muted-foreground mb-4">
-              Unable to load the repository data.
+            <p className="text-muted-foreground mb-6 text-center max-w-md">
+              Unable to load the repository data. Please check the URL and try
+              again.
             </p>
-            <Button onClick={onClose}>Try a different repository</Button>
+            <Button onClick={onClose} className="btn-primary-gradient">
+              Try a different repository
+            </Button>
           </div>
         ) : (
           <>
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-4 bg-muted/50 border-b sticky top-0 z-10">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 p-4 bg-muted/30 border-b sticky top-0 z-10 backdrop-blur-sm">
               <div className="flex flex-wrap items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={selectAll}
                   disabled={downloading}
+                  className="hover-lift bg-background/80"
                 >
                   Select All
                 </Button>
@@ -647,6 +668,7 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
                   size="sm"
                   onClick={unselectAll}
                   disabled={downloading}
+                  className="hover-lift bg-background/80"
                 >
                   Unselect All
                 </Button>
@@ -655,15 +677,24 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
                   size="sm"
                   onClick={handleSaveRepo}
                   disabled={downloading || saved}
+                  className="hover-lift bg-background/80"
                 >
                   <Save className="h-4 w-4 mr-2" />
                   {saved ? "Saved" : "Save to Examples"}
                 </Button>
+                {selectedCount > 0 && (
+                  <Badge
+                    variant="secondary"
+                    className="bg-primary/10 text-primary"
+                  >
+                    {selectedCount} selected
+                  </Badge>
+                )}
               </div>
               <Button
                 onClick={handleDownload}
                 disabled={selectedCount === 0 || downloading}
-                className="w-full md:w-auto"
+                className="w-full lg:w-auto btn-primary-gradient hover-lift"
               >
                 {downloading ? (
                   <>
@@ -679,12 +710,18 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
               </Button>
             </div>
 
-            <div className="flex-1 overflow-auto">
+            <div className="flex-1 overflow-auto p-4">
               {repoData.files && repoData.files.length > 0 ? (
-                <div className="p-2">
-                  <div className="text-xs text-muted-foreground mb-3 flex items-center gap-1 justify-center">
-                    <Folder className="h-3 w-3" /> Click on folders to
-                    expand/collapse them
+                <div className="space-y-4">
+                  <div className="text-center p-4 bg-info/10 rounded-lg border border-info/20">
+                    <div className="flex items-center justify-center gap-2 text-info mb-2">
+                      <Folder className="h-4 w-4" />
+                      <span className="font-medium">File Explorer</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Click on folders to expand/collapse them. Select files and
+                      folders to download.
+                    </p>
                   </div>
                   <FileTree
                     files={repoData.files}
@@ -695,11 +732,21 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
                   />
                 </div>
               ) : (
-                <div className="flex items-center justify-center h-full p-8 text-center">
-                  <p className="text-muted-foreground">
-                    This repository is empty or doesn't have any files in the
-                    current branch.
-                  </p>
+                <div className="flex items-center justify-center h-full p-12 text-center">
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-full bg-muted/50 mx-auto w-fit">
+                      <Folder className="h-12 w-12 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-medium mb-2">
+                        Repository is empty
+                      </h3>
+                      <p className="text-muted-foreground">
+                        This repository doesn't have any files in the current
+                        branch.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

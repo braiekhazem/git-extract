@@ -207,7 +207,8 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
         return (
           <>
             <Search className="h-4 w-4 mr-2" />
-            Explore
+            <span className="hidden sm:inline">Explore</span>
+            <span className="sm:hidden">Browse</span>
           </>
         );
       case "download":
@@ -221,45 +222,62 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
         return (
           <>
             <Link className="h-4 w-4 mr-2" />
-            Get Link
+            <span className="hidden sm:inline">Get Link</span>
+            <span className="sm:hidden">Link</span>
           </>
         );
     }
   };
 
   return (
-    <div className="max-w-xl mx-auto">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid gap-2">
-          <label htmlFor="repo-url" className="font-medium text-sm">
-            Enter a public repository URL
-          </label>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-              <Link className="h-4 w-4" />
-            </span>
-            <Input
-              id="repo-url"
-              type="text"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="e.g., https://github.com/facebook/react"
-              className="pl-9"
-              disabled={isLoading || downloading}
-            />
+    <div className="max-w-xl mx-auto px-2 sm:px-0">
+      <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+        <div className="space-y-3 md:space-y-4">
+          <div className="space-y-2">
+            <label
+              htmlFor="repo-url"
+              className="font-semibold text-sm md:text-base animate-fade-in-up"
+            >
+              Enter a public repository URL
+            </label>
+            <div className="relative animate-fade-in-up animation-delay-200">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                <Link className="h-4 w-4" />
+              </span>
+              <Input
+                id="repo-url"
+                type="text"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="e.g., https://github.com/facebook/react"
+                className="pl-10 h-11 md:h-12 text-sm md:text-base focus-enhanced border-2 hover:border-primary/30 transition-colors"
+                disabled={isLoading || downloading}
+                autoFocus
+              />
+            </div>
           </div>
-          <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-            <Github className="h-3 w-3" />
-            <Gitlab className="h-3 w-3" />
-            Supports public repository, folder, and file URLs.
-          </p>
+
+          <div className="flex flex-wrap items-center gap-2 md:gap-3 text-xs md:text-sm text-muted-foreground animate-fade-in-up animation-delay-300">
+            <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 bg-primary/10 rounded-full">
+              <Github className="h-3 md:h-3.5 w-3 md:w-3.5 text-primary" />
+              <span className="font-medium">GitHub</span>
+            </div>
+            <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 bg-orange-500/10 rounded-full">
+              <Gitlab className="h-3 md:h-3.5 w-3 md:w-3.5 text-orange-500" />
+              <span className="font-medium">GitLab</span>
+            </div>
+            <span className="text-xs hidden sm:inline">
+              Supports public repository, folder, and file URLs.
+            </span>
+            <span className="text-xs sm:hidden">Supports public URLs</span>
+          </div>
         </div>
 
-        <div className="flex mt-4">
+        <div className="flex animate-fade-in-up animation-delay-400">
           <Button
             type="submit"
             disabled={!url || isLoading || downloading}
-            className="flex-1 rounded-r-none"
+            className="flex-1 rounded-r-none h-11 md:h-12 text-sm md:text-base font-semibold btn-primary-gradient"
           >
             {isLoading || downloading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -273,24 +291,48 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
                 type="button"
                 variant="outline"
                 size="icon"
-                className="w-10 rounded-l-none border-l-0"
+                className="w-11 md:w-12 h-11 md:h-12 rounded-l-none border-l-0 bg-background/50 hover:bg-primary/10 border-2 hover:border-primary/30 transition-colors"
                 disabled={isLoading || downloading}
               >
                 <ChevronDown className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onSelect={() => setAction("explore")}>
-                <Search className="h-4 w-4 mr-2" />
-                Explore Files
+            <DropdownMenuContent align="end" className="w-44 sm:w-48">
+              <DropdownMenuItem
+                onSelect={() => setAction("explore")}
+                className="cursor-pointer hover:bg-primary/10 p-3"
+              >
+                <Search className="h-4 w-4 mr-2 text-primary" />
+                <div>
+                  <div className="font-medium text-sm">Explore Files</div>
+                  <div className="text-xs text-muted-foreground">
+                    Browse and select files
+                  </div>
+                </div>
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setAction("download")}>
-                <Download className="h-4 w-4 mr-2" />
-                Direct Download
+              <DropdownMenuItem
+                onSelect={() => setAction("download")}
+                className="cursor-pointer hover:bg-primary/10 p-3"
+              >
+                <Download className="h-4 w-4 mr-2 text-primary" />
+                <div>
+                  <div className="font-medium text-sm">Direct Download</div>
+                  <div className="text-xs text-muted-foreground">
+                    Download entire repository
+                  </div>
+                </div>
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setAction("download-link")}>
-                <Link className="h-4 w-4 mr-2" />
-                Get Download Link
+              <DropdownMenuItem
+                onSelect={() => setAction("download-link")}
+                className="cursor-pointer hover:bg-primary/10 p-3"
+              >
+                <Link className="h-4 w-4 mr-2 text-primary" />
+                <div>
+                  <div className="font-medium text-sm">Get Download Link</div>
+                  <div className="text-xs text-muted-foreground">
+                    Copy shareable link
+                  </div>
+                </div>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -298,7 +340,7 @@ const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading }) => {
       </form>
 
       {showProgress && (
-        <div className="mt-4">
+        <div className="mt-4 md:mt-6 animate-slide-in-from-bottom">
           <DirectDownloadProgress
             progress={downloadProgress}
             isComplete={downloadProgress === 100 && !downloadError}
