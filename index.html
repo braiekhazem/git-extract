@@ -3,29 +3,160 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>RepoZip - GitHub & GitLab Repository Downloader</title>
+
+    <!-- Primary Meta Tags -->
+    <title>
+      GitExtract - Download Files from GitHub & GitLab Repositories | Free
+      Online Tool
+    </title>
+    <meta
+      name="title"
+      content="GitExtract - Download Files from GitHub & GitLab Repositories | Free Online Tool"
+    />
     <meta
       name="description"
-      content="Browse, select, and download files from any public GitHub or GitLab repository with ease."
+      content="Download specific files and folders from any public GitHub or GitLab repository without cloning. Free online tool with visual file explorer, multi-file selection, and instant ZIP downloads."
     />
+    <meta
+      name="keywords"
+      content="github downloader, gitlab downloader, repository files, download github files, git file extractor, github file browser, gitlab file browser, repository downloader, github zip download, gitlab zip download, selective download, git files online"
+    />
+    <meta name="author" content="Hazem Braiek" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="English" />
+    <meta name="revisit-after" content="7 days" />
 
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://gitextract.com/" />
     <meta
       property="og:title"
-      content="RepoZip - GitHub & GitLab Repository Downloader"
+      content="GitExtract - Download Files from GitHub & GitLab Repositories"
     />
     <meta
       property="og:description"
-      content="Browse, select, and download files from any public GitHub or GitLab repository with ease."
+      content="Download specific files and folders from any public GitHub or GitLab repository without cloning. Free online tool with visual file explorer and instant ZIP downloads."
     />
-    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://gitextract.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="GitExtract - GitHub and GitLab Repository File Downloader"
+    />
+    <meta property="og:site_name" content="GitExtract" />
+    <meta property="og:locale" content="en_US" />
 
-    <meta name="twitter:card" content="summary_large_image" />
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://gitextract.com/" />
+    <meta
+      property="twitter:title"
+      content="GitExtract - Download Files from GitHub & GitLab Repositories"
+    />
+    <meta
+      property="twitter:description"
+      content="Download specific files and folders from any public GitHub or GitLab repository without cloning. Free online tool with visual file explorer."
+    />
+    <meta
+      property="twitter:image"
+      content="https://gitextract.com/twitter-image.png"
+    />
+    <meta
+      property="twitter:image:alt"
+      content="GitExtract - GitHub and GitLab Repository File Downloader"
+    />
+    <meta property="twitter:creator" content="@hazem_braiek" />
+
+    <!-- Additional SEO Meta Tags -->
+    <meta name="theme-color" content="#8b5cf6" />
+    <meta name="msapplication-TileColor" content="#8b5cf6" />
+    <meta name="application-name" content="GitExtract" />
+    <meta name="apple-mobile-web-app-title" content="GitExtract" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://gitextract.com/" />
+
+    <!-- Favicon and Icons -->
+    <link rel="icon" href="/favicon-with-bg.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="/favicon-with-bg.svg" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Preconnect to external domains for performance -->
+    <link rel="preconnect" href="https://api.github.com" />
+    <link rel="preconnect" href="https://gitlab.com" />
+    <link rel="dns-prefetch" href="https://api.github.com" />
+    <link rel="dns-prefetch" href="https://gitlab.com" />
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "GitExtract",
+        "description": "Download specific files and folders from any public GitHub or GitLab repository without cloning the entire project.",
+        "url": "https://gitextract.com",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "Hazem Braiek",
+          "url": "https://www.linkedin.com/in/braiek-hazem/"
+        },
+        "publisher": {
+          "@type": "Person",
+          "name": "Hazem Braiek"
+        },
+        "datePublished": "2025-01-01",
+        "dateModified": "2025-01-01",
+        "inLanguage": "en-US",
+        "isAccessibleForFree": true,
+        "browserRequirements": "Requires JavaScript. Requires HTML5.",
+        "softwareVersion": "1.0.0",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "5.0",
+          "ratingCount": "1"
+        },
+        "featureList": [
+          "Visual File Explorer",
+          "Multi-file Selection",
+          "GitHub Integration",
+          "GitLab Integration",
+          "Branch Selection",
+          "Direct Download",
+          "ZIP File Creation",
+          "Mobile Responsive",
+          "Dark Mode Support"
+        ]
+      }
+    </script>
+
+    <!-- Additional Performance Hints -->
+    <link rel="preload" href="/src/main.tsx" as="script" />
   </head>
 
   <body>
     <div id="root"></div>
-    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      window.Fu = window.Fu || {};
+      Fu.access_token = "18a38baa26e8f17c22cbf989f59770";
+      (function (d) {
+        let s = d.createElement("script");
+        s.async = true;
+        s.src = "https://widget.feeduser.me/widget/v1.js";
+        (d.head || d.body).appendChild(s);
+      })(document);
+    </script>
   </body>
 </html>

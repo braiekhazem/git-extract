@@ -11,7 +11,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ThemeToggle } from "../components/ThemeToggle";
 import { ThemeProvider } from "../context/ThemeContext";
 import RepoForm from "../components/RepoForm";
-import { Github, Gitlab, Check, GitBranch, Sparkles } from "lucide-react";
+import {
+  Github,
+  Gitlab,
+  Check,
+  GitBranch,
+  Sparkles,
+  Heart,
+} from "lucide-react";
 import RepoExplorerModal from "../components/RepoExplorerModal";
 import { SavedRepo, RepoActionType } from "../types/repo";
 import { getSavedRepos } from "../services/repoService";
@@ -85,6 +92,18 @@ const Index = () => {
   return (
     <ThemeProvider>
       <div className="min-h-screen flex flex-col bg-background text-foreground relative overflow-hidden">
+        {/* Palestine Solidarity Banner */}
+        <div className="w-full bg-gradient-to-r from-green-600 via-white to-red-600 py-2 px-4 text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-green-600/90 via-white/90 to-red-600/90"></div>
+          <div className="relative z-10 flex items-center justify-center gap-2 text-sm font-medium">
+            <Heart className="h-4 w-4 text-red-600 animate-pulse" />
+            <span className="text-gray-800">We Stand with Palestine</span>
+            <span className="text-green-700">🇵🇸</span>
+            <Heart className="h-4 w-4 text-red-600 animate-pulse" />
+          </div>
+        </div>
+
+        {/* Enhanced background gradients */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent -z-10" />
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-primary/10 via-transparent to-transparent rounded-full blur-3xl -z-10" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-primary/5 via-transparent to-transparent rounded-full blur-3xl -z-10" />
