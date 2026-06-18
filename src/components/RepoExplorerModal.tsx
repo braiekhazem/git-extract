@@ -672,7 +672,7 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
                   size="sm"
                   onClick={selectAll}
                   disabled={downloading}
-                  className="hover-lift bg-background/80"
+                  className="bg-background/80"
                 >
                   {t("modal.selectAll")}
                 </Button>
@@ -681,7 +681,7 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
                   size="sm"
                   onClick={unselectAll}
                   disabled={downloading}
-                  className="hover-lift bg-background/80"
+                  className="bg-background/80"
                 >
                   {t("modal.unselectAll")}
                 </Button>
@@ -690,7 +690,7 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
                   size="sm"
                   onClick={handleSaveRepo}
                   disabled={downloading || saved}
-                  className="hover-lift bg-background/80"
+                  className="bg-background/80"
                 >
                   <Save className="h-4 w-4 mr-2" />
                   {saved ? t("modal.saved") : t("modal.saveToExamples")}
@@ -707,7 +707,7 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
               <Button
                 onClick={handleDownload}
                 disabled={selectedCount === 0 || downloading}
-                className="w-full lg:w-auto btn-primary-gradient hover-lift"
+                className="w-full lg:w-auto btn-primary-gradient"
               >
                 {downloading ? (
                   <>

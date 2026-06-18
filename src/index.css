@@ -369,8 +369,7 @@
   }
 
   .btn-primary-gradient:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px hsl(var(--primary) / 0.3);
+    filter: brightness(0.95);
   }
 
   /* Glass morphism effect */
