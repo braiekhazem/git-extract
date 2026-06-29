@@ -22,7 +22,6 @@
     "placeholder": "Entrez l'URL du dépôt GitHub ou GitLab",
     "explore": "Explorer",
     "download": "Tout télécharger",
-    "loading": "Chargement...",
     "invalidUrl": "Veuillez entrer une URL de dépôt GitHub ou GitLab valide",
     "urlRequired": "L'URL du dépôt est requise"
   },
@@ -48,23 +47,14 @@
     "mobileFriendly": "Compatible mobile"
   },
   "modal": {
-    "loading": "Chargement du dépôt...",
     "loadingTitle": "Chargement du dépôt...",
     "loadingDescription": "Cela peut prendre un moment pour les gros dépôts. Nous récupérons la structure des fichiers et les métadonnées.",
     "repositoryExplorer": "Explorateur de dépôt",
     "branch": "Branche",
     "selectBranch": "Sélectionner la branche",
-    "selectedFiles": "Fichiers sélectionnés",
-    "downloadSelected": "Télécharger la sélection",
-    "downloadAll": "Tout télécharger",
     "downloading": "Téléchargement...",
-    "close": "Fermer",
     "noFilesSelected": "Aucun fichier sélectionné",
     "selectFilesToDownload": "Veuillez sélectionner des fichiers à télécharger",
-    "downloadProgress": "Progression du téléchargement",
-    "preparingDownload": "Préparation du téléchargement...",
-    "downloadComplete": "Téléchargement terminé !",
-    "downloadFailed": "Échec du téléchargement",
     "repositoryNotFound": "Dépôt introuvable",
     "repositoryNotFoundDescription": "Impossible de charger les données du dépôt. Veuillez vérifier l'URL et réessayer.",
     "tryDifferentRepository": "Essayer un autre dépôt",
@@ -82,22 +72,15 @@
     "repositorySavedDescription": "Ce dépôt a été ajouté à vos exemples."
   },
   "fileTree": {
-    "folder": "Dossier",
-    "file": "Fichier",
-    "loading": "Chargement...",
-    "empty": "Dossier vide",
     "clickToExpand": "Cliquer pour développer le dossier",
     "clickToCollapse": "Cliquer pour réduire le dossier",
     "loadingContents": "Chargement du contenu du dossier..."
   },
   "savedRepos": {
-    "title": "Vos dépôts sauvegardés",
-    "subtitle": "Accès rapide à vos dépôts fréquemment utilisés",
     "noSaved": "Aucun dépôt sauvegardé pour le moment",
     "saveFirst": "Sauvegardez des dépôts en les explorant pour les voir ici",
     "lastAccessed": "Dernier accès",
-    "remove": "Supprimer",
-    "explore": "Explorer"
+    "remove": "Supprimer"
   },
   "footer": {
     "builtWith": "Créé avec ❤️ copyright 2025",
@@ -105,17 +88,17 @@
   },
   "errors": {
     "loadRepo": "Échec du chargement du dépôt",
-    "loadBranches": "Échec du chargement des branches",
     "loadFolder": "Échec du chargement du contenu du dossier",
     "download": "Échec du téléchargement",
     "invalidRepo": "URL de dépôt invalide ou dépôt introuvable",
+    "rateLimit": "Limite de requêtes API atteinte. Le quota public GitHub/GitLab (60 requêtes/heure) est épuisé — veuillez réessayer plus tard.",
+    "notFound": "Dépôt introuvable. Vérifiez que l'URL est correcte et que le dépôt est public.",
     "networkError": "Erreur réseau survenue",
     "unknownError": "Une erreur inconnue s'est produite",
     "switchBranch": "Erreur lors du changement de branche",
     "switchBranchDescription": "Échec du chargement de la nouvelle branche. Veuillez réessayer."
   },
   "success": {
-    "repoLoaded": "Dépôt chargé avec succès",
     "downloadStarted": "Téléchargement commencé",
     "downloadComplete": "Téléchargement terminé avec succès"
   },

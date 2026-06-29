@@ -369,6 +369,7 @@
   }
 
   .btn-primary-gradient:hover {
+
     filter: brightness(0.95);
   }
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense, lazy } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -21,12 +21,41 @@ import {
   Sparkles,
   Heart,
 } from "lucide-react";
-import RepoExplorerModal from "../components/RepoExplorerModal";
+const RepoExplorerModal = lazy(
+  () => import("../components/RepoExplorerModal")
+);
 import { SavedRepo, RepoActionType } from "../types/repo";
 import { getSavedRepos } from "../services/repoService";
 import SavedRepos from "../components/SavedRepos";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
+
+const EXAMPLE_REPOS = [
+  {
+    url: "https://github.com/facebook/react",
+    name: "facebook/react",
+    provider: "github",
+    i18nKey: "examples.react",
+  },
+  {
+    url: "https://gitlab.com/gitlab-org/gitlab-foss",
+    name: "gitlab-org/gitlab-foss",
+    provider: "gitlab",
+    i18nKey: "examples.gitlab",
+  },
+  {
+    url: "https://github.com/vercel/next.js",
+    name: "vercel/next.js",
+    provider: "github",
+    i18nKey: "examples.nextjs",
+  },
+  {
+    url: "https://github.com/shadcn-ui/ui",
+    name: "shadcn-ui/ui",
+    provider: "github",
+    i18nKey: "examples.shadcn",
+  },
+] as const;
 
 const Index = () => {
   const { t } = useTranslation();
@@ -251,101 +280,43 @@ const Index = () => {
                       </div>
 
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4">
-                        <Card
-                          className="cursor-pointer card-enhanced hover-lift group"
-                          onClick={() =>
-                            handleRepoSubmit(
-                              "https://github.com/facebook/react",
-                              "explore"
-                            )
-                          }
-                        >
-                          <CardHeader className="flex flex-row items-center gap-3 md:gap-4 space-y-0 p-4 md:p-6">
-                            <div className="p-2 md:p-3 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                              <Github className="h-5 md:h-6 w-5 md:w-6 text-primary" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-semibold text-sm md:text-lg truncate">
-                                facebook/react
-                              </p>
-                              <p className="text-xs md:text-sm text-muted-foreground">
-                                {t("examples.react")}
-                              </p>
-                            </div>
-                          </CardHeader>
-                        </Card>
-
-                        <Card
-                          className="cursor-pointer card-enhanced hover-lift group"
-                          onClick={() =>
-                            handleRepoSubmit(
-                              "https://gitlab.com/gitlab-org/gitlab-foss",
-                              "explore"
-                            )
-                          }
-                        >
-                          <CardHeader className="flex flex-row items-center gap-3 md:gap-4 space-y-0 p-4 md:p-6">
-                            <div className="p-2 md:p-3 rounded-lg bg-orange-500/10 group-hover:bg-orange-500/20 transition-colors">
-                              <Gitlab className="h-5 md:h-6 w-5 md:w-6 text-orange-500" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-semibold text-sm md:text-lg truncate">
-                                gitlab-org/gitlab-foss
-                              </p>
-                              <p className="text-xs md:text-sm text-muted-foreground">
-                                {t("examples.gitlab")}
-                              </p>
-                            </div>
-                          </CardHeader>
-                        </Card>
-
-                        <Card
-                          className="cursor-pointer card-enhanced hover-lift group"
-                          onClick={() =>
-                            handleRepoSubmit(
-                              "https://github.com/vercel/next.js",
-                              "explore"
-                            )
-                          }
-                        >
-                          <CardHeader className="flex flex-row items-center gap-3 md:gap-4 space-y-0 p-4 md:p-6">
-                            <div className="p-2 md:p-3 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                              <Github className="h-5 md:h-6 w-5 md:w-6 text-primary" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-semibold text-sm md:text-lg truncate">
-                                vercel/next.js
-                              </p>
-                              <p className="text-xs md:text-sm text-muted-foreground">
-                                {t("examples.nextjs")}
-                              </p>
-                            </div>
-                          </CardHeader>
-                        </Card>
-
-                        <Card
-                          className="cursor-pointer card-enhanced hover-lift group"
-                          onClick={() =>
-                            handleRepoSubmit(
-                              "https://github.com/shadcn-ui/ui",
-                              "explore"
-                            )
-                          }
-                        >
-                          <CardHeader className="flex flex-row items-center gap-3 md:gap-4 space-y-0 p-4 md:p-6">
-                            <div className="p-2 md:p-3 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                              <Github className="h-5 md:h-6 w-5 md:w-6 text-primary" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-semibold text-sm md:text-lg truncate">
-                                shadcn-ui/ui
-                              </p>
-                              <p className="text-xs md:text-sm text-muted-foreground">
-                                {t("examples.shadcn")}
-                              </p>
-                            </div>
-                          </CardHeader>
-                        </Card>
+                        {EXAMPLE_REPOS.map((repo) => {
+                          const isGitlab = repo.provider === "gitlab";
+                          const Icon = isGitlab ? Gitlab : Github;
+                          return (
+                            <Card
+                              key={repo.url}
+                              className="cursor-pointer card-enhanced hover-lift group"
+                              onClick={() =>
+                                handleRepoSubmit(repo.url, "explore")
+                              }
+                            >
+                              <CardHeader className="flex flex-row items-center gap-3 md:gap-4 space-y-0 p-4 md:p-6">
+                                <div
+                                  className={`p-2 md:p-3 rounded-lg transition-colors ${
+                                    isGitlab
+                                      ? "bg-orange-500/10 group-hover:bg-orange-500/20"
+                                      : "bg-primary/10 group-hover:bg-primary/20"
+                                  }`}
+                                >
+                                  <Icon
+                                    className={`h-5 md:h-6 w-5 md:w-6 ${
+                                      isGitlab ? "text-orange-500" : "text-primary"
+                                    }`}
+                                  />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-semibold text-sm md:text-lg truncate">
+                                    {repo.name}
+                                  </p>
+                                  <p className="text-xs md:text-sm text-muted-foreground">
+                                    {t(repo.i18nKey)}
+                                  </p>
+                                </div>
+                              </CardHeader>
+                            </Card>
+                          );
+                        })}
                       </div>
                     </div>
                   </TabsContent>
@@ -412,12 +383,14 @@ const Index = () => {
           </div>
         </footer>
 
-        <RepoExplorerModal
-          repoUrl={repoUrl}
-          open={isModalOpen}
-          onClose={handleCloseModal}
-          initialAction={initialAction}
-        />
+        <Suspense fallback={null}>
+          <RepoExplorerModal
+            repoUrl={repoUrl}
+            open={isModalOpen}
+            onClose={handleCloseModal}
+            initialAction={initialAction}
+          />
+        </Suspense>
         <Toaster />
       </div>
     </ThemeProvider>

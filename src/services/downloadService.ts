@@ -1,4 +1,3 @@
-import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { RepoFile, RepoData } from "../types/repo";
 import { fetchFileContent, fetchRepoFiles } from "./repoService";
@@ -83,56 +82,14 @@ export const collectAllFilesFromDirectory = async (
   }
 };
 
-// Enhanced function to get selected files with proper directory handling
-export const getSelectedFilesWithDirectoryExpansion = async (
-  repoData: RepoData,
-  selectedPaths: Set<string>
-): Promise<RepoFile[]> => {
-  let allSelectedFiles: RepoFile[] = [];
-
-  // Find files in the current file tree
-  const findFileByPath = (
-    files: RepoFile[],
-    targetPath: string
-  ): RepoFile | null => {
-    for (const file of files) {
-      if (file.path === targetPath) {
-        return file;
-      }
-      if (file.type === "dir" && file.children) {
-        const found = findFileByPath(file.children, targetPath);
-        if (found) return found;
-      }
-    }
-    return null;
-  };
-
-  for (const selectedPath of selectedPaths) {
-    const file = findFileByPath(repoData.files, selectedPath);
-
-    if (file) {
-      if (file.type === "file") {
-        allSelectedFiles.push(file);
-      } else if (file.type === "dir") {
-        // For directories, collect all files (even if not loaded in UI)
-        const allDirFiles = await collectAllFilesFromDirectory(
-          repoData,
-          file.path
-        );
-        allSelectedFiles = [...allSelectedFiles, ...allDirFiles];
-      }
-    }
-  }
-
-  return allSelectedFiles;
-};
-
 // Create and download ZIP file with enhanced progress tracking
 export const createAndDownloadZip = async (
   repoData: RepoData,
   selectedFiles: RepoFile[],
   setProgress: (progress: number) => void
 ): Promise<void> => {
+  // Load JSZip on demand so it stays out of the initial bundle.
+  const { default: JSZip } = await import("jszip");
   const zip = new JSZip();
   let processed = 0;
   const totalFiles = selectedFiles.length;

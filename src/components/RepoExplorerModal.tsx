@@ -95,11 +95,13 @@ const RepoExplorerModal: React.FC<RepoExplorerModalProps> = ({
         }
       }
     } catch (error) {
+      const key =
+        error instanceof Error && error.message.startsWith("errors.")
+          ? error.message
+          : "errors.unknownError";
       toast({
         title: t("errors.loadRepo"),
-        description: `${t("errors.loadRepo")}. ${t("errors.networkError")} ${
-          error instanceof Error ? `(${error.message})` : ""
-        }`.trim(),
+        description: t(key),
         variant: "destructive",
       });
       console.error("Error loading repository:", error);

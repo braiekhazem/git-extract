@@ -22,7 +22,6 @@
     "placeholder": "Enter GitHub or GitLab repository URL",
     "explore": "Explore",
     "download": "Download All",
-    "loading": "Loading...",
     "invalidUrl": "Please enter a valid GitHub or GitLab repository URL",
     "urlRequired": "Repository URL is required"
   },
@@ -48,23 +47,14 @@
     "mobileFriendly": "Mobile Friendly"
   },
   "modal": {
-    "loading": "Loading repository...",
     "loadingTitle": "Loading Repository...",
     "loadingDescription": "This may take a moment for large repositories. We're fetching the file structure and metadata.",
     "repositoryExplorer": "Repository Explorer",
     "branch": "Branch",
     "selectBranch": "Select Branch",
-    "selectedFiles": "Selected Files",
-    "downloadSelected": "Download Selected",
-    "downloadAll": "Download All",
     "downloading": "Downloading...",
-    "close": "Close",
     "noFilesSelected": "No files selected",
     "selectFilesToDownload": "Please select files to download",
-    "downloadProgress": "Download Progress",
-    "preparingDownload": "Preparing download...",
-    "downloadComplete": "Download complete!",
-    "downloadFailed": "Download failed",
     "repositoryNotFound": "Repository not found",
     "repositoryNotFoundDescription": "Unable to load the repository data. Please check the URL and try again.",
     "tryDifferentRepository": "Try a different repository",
@@ -82,22 +72,15 @@
     "repositorySavedDescription": "This repository has been added to your examples."
   },
   "fileTree": {
-    "folder": "Folder",
-    "file": "File",
-    "loading": "Loading...",
-    "empty": "Empty folder",
     "clickToExpand": "Click to expand folder",
     "clickToCollapse": "Click to collapse folder",
     "loadingContents": "Loading folder contents..."
   },
   "savedRepos": {
-    "title": "Your Saved Repositories",
-    "subtitle": "Quick access to your frequently used repositories",
     "noSaved": "No saved repositories yet",
     "saveFirst": "Save repositories while exploring to see them here",
     "lastAccessed": "Last accessed",
-    "remove": "Remove",
-    "explore": "Explore"
+    "remove": "Remove"
   },
   "footer": {
     "builtWith": "Built with ❤️ copyright 2025",
@@ -105,17 +88,17 @@
   },
   "errors": {
     "loadRepo": "Failed to load repository",
-    "loadBranches": "Failed to load branches",
     "loadFolder": "Failed to load folder contents",
     "download": "Download failed",
     "invalidRepo": "Invalid repository URL or repository not found",
+    "rateLimit": "API rate limit exceeded. The public GitHub/GitLab quota (60 requests/hour) is used up — please wait and try again later.",
+    "notFound": "Repository not found. Check that the URL is correct and the repository is public.",
     "networkError": "Network error occurred",
     "unknownError": "An unknown error occurred",
     "switchBranch": "Error switching branch",
     "switchBranchDescription": "Failed to load the new branch. Please try again."
   },
   "success": {
-    "repoLoaded": "Repository loaded successfully",
     "downloadStarted": "Download started",
     "downloadComplete": "Download completed successfully"
   },

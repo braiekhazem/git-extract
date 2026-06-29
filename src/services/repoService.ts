@@ -1,6 +1,24 @@
 import axios from "axios";
 import { RepoType, RepoFile, RepoData, SavedRepo } from "../types/repo";
 
+// Classify an API error into an i18n key so the UI can show an actionable message
+// instead of a generic "repository not found".
+export const classifyApiError = (error: unknown): string => {
+  if (axios.isAxiosError(error)) {
+    const status = error.response?.status;
+    // GitHub/GitLab return 403 (rate limit, often with x-ratelimit-remaining: 0)
+    // or 429 (too many requests) when the unauthenticated quota is exhausted.
+    if (status === 429) return "errors.rateLimit";
+    if (status === 403) {
+      const remaining = error.response?.headers?.["x-ratelimit-remaining"];
+      if (remaining === undefined || remaining === "0") return "errors.rateLimit";
+    }
+    if (status === 404) return "errors.notFound";
+    if (!error.response) return "errors.networkError";
+  }
+  return "errors.unknownError";
+};
+
 // Enhanced repository URL parser that handles more URL formats
 export const parseRepoUrl = (
   url: string
@@ -119,7 +137,7 @@ export const fetchBranches = async (
     }
   } catch (error) {
     console.error("Error fetching branches:", error);
-    return [];
+    throw error;
   }
 };
 
@@ -178,46 +196,32 @@ export const fetchRepoFiles = async (
         { params: { path: encodedFilePath, ref: branch } }
       );
 
-      const files: RepoFile[] = await Promise.all(
-        response.data.map(
-          async (item: {
-            name: string;
-            path: string;
-            type: string;
-            size: number;
-          }) => {
-            const file: RepoFile = {
-              name: item.name,
-              path: item.path,
-              type: item.type === "tree" ? "dir" : "file",
-              size: item.size,
-              loaded: false, // Directories start with loaded=false
-            };
+      const files: RepoFile[] = response.data.map(
+        (item: { name: string; path: string; type: string; size: number }) => {
+          const file: RepoFile = {
+            name: item.name,
+            path: item.path,
+            type: item.type === "tree" ? "dir" : "file",
+            size: item.size,
+            loaded: false, // Directories start with loaded=false
+          };
 
-            if (file.type === "dir") {
-              file.children = []; // Initialize with empty array
-            } else if (file.type === "file") {
-              // For GitLab, we need to get the blob for download URL
-              const blobResponse = await axios.get(
-                `https://gitlab.com/api/v4/projects/${encodedProjectPath}/repository/files/${encodeURIComponent(
-                  file.path
-                )}`,
-                { params: { ref: branch } }
-              );
-              file.downloadUrl = `https://gitlab.com/${owner}/${repo}/-/raw/${branch}/${file.path}`;
-              file.sha = blobResponse.data.blob_id;
-            }
-
-            return file;
+          if (file.type === "dir") {
+            file.children = []; // Initialize with empty array
+          } else {
+            // The raw URL is static — no per-file blob API call needed.
+            file.downloadUrl = `https://gitlab.com/${owner}/${repo}/-/raw/${branch}/${file.path}`;
           }
-        )
+
+          return file;
+        }
       );
 
       return files;
     }
   } catch (error) {
     console.error(`Error fetching repo files for ${path}:`, error);
-    return [];
+    throw error;
   }
 };
 
@@ -231,37 +235,9 @@ export const loadDirectoryContents = async (
   repoData: RepoData
 ): Promise<RepoFile[]> => {
   try {
-    // Fetch the directory contents
+    // Fetch the directory contents. The caller (RepoExplorerModal) owns merging
+    // these into its file-tree state, so we just return them here.
     const dirContents = await fetchRepoFiles(owner, repo, branch, type, path);
-
-    // Update the repo data tree with the loaded contents
-    const updateFileTree = (files: RepoFile[]): RepoFile[] => {
-      return files.map((file) => {
-        if (file.path === path && file.type === "dir") {
-          // Found the directory to update
-          return {
-            ...file,
-            children: dirContents,
-            loaded: true,
-          };
-        } else if (
-          file.type === "dir" &&
-          file.children &&
-          path.startsWith(file.path + "/")
-        ) {
-          // This is a parent directory, recurse into its children
-          return {
-            ...file,
-            children: updateFileTree(file.children),
-          };
-        } else {
-          // Not the directory we're looking for
-          return file;
-        }
-      });
-    };
-
-    // Return the directory contents for immediate use
     return dirContents;
   } catch (error) {
     console.error(`Error loading directory contents for ${path}:`, error);
@@ -308,16 +284,29 @@ export const loadRepoData = async (
   }
 
   const { owner, repo, type, path } = parsedRepo;
-  const branches = await fetchBranches(owner, repo, type);
 
-  if (branches.length === 0) {
-    return null;
+  let branches: string[];
+  let files: RepoFile[];
+  let currentBranch: string;
+  try {
+    branches = await fetchBranches(owner, repo, type);
+
+    if (branches.length === 0) {
+      throw new Error("errors.notFound");
+    }
+
+    const mainBranch = branches.find((b) => b.toLowerCase() === "main");
+    currentBranch = branch || mainBranch || branches[0];
+    files = await fetchRepoFiles(owner, repo, currentBranch, type);
+  } catch (error) {
+    // Re-throw as an i18n key so the UI can show an actionable message
+    // (rate limit / not found / network) instead of a generic failure.
+    throw new Error(
+      error instanceof Error && error.message.startsWith("errors.")
+        ? error.message
+        : classifyApiError(error)
+    );
   }
-
-  const mainBranch = branches.find((b) => b.toLowerCase() === "main");
-
-  const currentBranch = branch || mainBranch || branches[0];
-  const files = await fetchRepoFiles(owner, repo, currentBranch, type);
 
   return {
     owner,

@@ -22,7 +22,6 @@
     "placeholder": "أدخل رابط مستودع GitHub أو GitLab",
     "explore": "استكشاف",
     "download": "تحميل الكل",
-    "loading": "جاري التحميل...",
     "invalidUrl": "يرجى إدخال رابط مستودع GitHub أو GitLab صحيح",
     "urlRequired": "رابط المستودع مطلوب"
   },
@@ -48,23 +47,14 @@
     "mobileFriendly": "متوافق مع الهاتف"
   },
   "modal": {
-    "loading": "جاري تحميل المستودع...",
     "loadingTitle": "جاري تحميل المستودع...",
     "loadingDescription": "قد يستغرق هذا بعض الوقت للمستودعات الكبيرة. نحن نجلب هيكل الملفات والبيانات الوصفية.",
     "repositoryExplorer": "مستكشف المستودع",
     "branch": "الفرع",
     "selectBranch": "اختر الفرع",
-    "selectedFiles": "الملفات المحددة",
-    "downloadSelected": "تحميل المحدد",
-    "downloadAll": "تحميل الكل",
     "downloading": "جاري التحميل...",
-    "close": "إغلاق",
     "noFilesSelected": "لم يتم تحديد ملفات",
     "selectFilesToDownload": "يرجى تحديد ملفات للتحميل",
-    "downloadProgress": "تقدم التحميل",
-    "preparingDownload": "جاري تحضير التحميل...",
-    "downloadComplete": "اكتمل التحميل!",
-    "downloadFailed": "فشل التحميل",
     "repositoryNotFound": "المستودع غير موجود",
     "repositoryNotFoundDescription": "تعذر تحميل بيانات المستودع. يرجى التحقق من الرابط والمحاولة مرة أخرى.",
     "tryDifferentRepository": "جرب مستودعاً آخر",
@@ -82,22 +72,15 @@
     "repositorySavedDescription": "تم إضافة هذا المستودع إلى أمثلتك."
   },
   "fileTree": {
-    "folder": "مجلد",
-    "file": "ملف",
-    "loading": "جاري التحميل...",
-    "empty": "مجلد فارغ",
     "clickToExpand": "انقر لتوسيع المجلد",
     "clickToCollapse": "انقر لطي المجلد",
     "loadingContents": "جاري تحميل محتويات المجلد..."
   },
   "savedRepos": {
-    "title": "مستودعاتك المحفوظة",
-    "subtitle": "وصول سريع للمستودعات التي تستخدمها بكثرة",
     "noSaved": "لا توجد مستودعات محفوظة بعد",
     "saveFirst": "احفظ المستودعات أثناء الاستكشاف لتراها هنا",
     "lastAccessed": "آخر وصول",
-    "remove": "إزالة",
-    "explore": "استكشاف"
+    "remove": "إزالة"
   },
   "footer": {
     "builtWith": "صُنع بـ ❤️ حقوق الطبع والنشر 2025",
@@ -105,17 +88,17 @@
   },
   "errors": {
     "loadRepo": "فشل في تحميل المستودع",
-    "loadBranches": "فشل في تحميل الفروع",
     "loadFolder": "فشل في تحميل محتويات المجلد",
     "download": "فشل التحميل",
     "invalidRepo": "رابط مستودع غير صحيح أو المستودع غير موجود",
+    "rateLimit": "تم تجاوز حد طلبات واجهة برمجة التطبيقات. الحصة العامة في GitHub/GitLab (60 طلبًا في الساعة) مستنفدة — يرجى المحاولة لاحقًا.",
+    "notFound": "المستودع غير موجود. تأكد من صحة الرابط وأن المستودع عام.",
     "networkError": "حدث خطأ في الشبكة",
     "unknownError": "حدث خطأ غير معروف",
     "switchBranch": "خطأ في تبديل الفرع",
     "switchBranchDescription": "فشل في تحميل الفرع الجديد. يرجى المحاولة مرة أخرى."
   },
   "success": {
-    "repoLoaded": "تم تحميل المستودع بنجاح",
     "downloadStarted": "بدأ التحميل",
     "downloadComplete": "اكتمل التحميل بنجاح"
   },

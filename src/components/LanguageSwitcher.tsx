@@ -22,10 +22,8 @@ const LanguageSwitcher = () => {
     languages.find((lang) => lang.code === i18n.language) || languages[0];
 
   const changeLanguage = (languageCode: string) => {
+    // Direction/lang are applied by the i18n "languageChanged" listener.
     i18n.changeLanguage(languageCode);
-    // Update document direction for RTL languages
-    document.documentElement.dir = languageCode === "ar" ? "rtl" : "ltr";
-    document.documentElement.lang = languageCode;
   };
 
   return (
