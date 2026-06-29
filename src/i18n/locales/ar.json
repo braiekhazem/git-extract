@@ -83,8 +83,11 @@
     "remove": "إزالة"
   },
   "footer": {
-    "builtWith": "صُنع بـ ❤️ حقوق الطبع والنشر 2025",
-    "description": "GitExtract - حمل ملفات المستودعات بسهولة."
+    "description": "تصفح واختر وحمّل الملفات من أي مستودع GitHub أو GitLab عام — دون الحاجة إلى الاستنساخ.",
+    "supportedPlatforms": "المنصات المدعومة",
+    "openSource": "مجاني ومفتوح المصدر",
+    "madeBy": "تطوير",
+    "rights": "جميع الحقوق محفوظة."
   },
   "errors": {
     "loadRepo": "فشل في تحميل المستودع",

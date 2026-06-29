@@ -18,8 +18,8 @@ import {
   Gitlab,
   Check,
   GitBranch,
-  Sparkles,
   Heart,
+  Linkedin,
 } from "lucide-react";
 const RepoExplorerModal = lazy(
   () => import("../components/RepoExplorerModal")
@@ -366,20 +366,62 @@ const Index = () => {
           </section>
         </main>
 
-        <footer className="py-4 md:py-6 mt-8 border-t bg-gradient-primary-soft">
-          <div className="container flex flex-col items-center justify-between gap-2 md:flex-row">
-            <p className="text-xs md:text-sm leading-loose text-center text-muted-foreground md:text-left">
-              {t("footer.builtWith")}{" "}
-              <a
-                href="https://www.linkedin.com/in/braiek-hazem/"
-                target="_blank"
-              >
-                <b>Hazem Braiek</b>
-              </a>
-            </p>
-            <p className="text-xs md:text-sm leading-loose text-center text-muted-foreground md:text-left">
-              {t("footer.description")}
-            </p>
+        <footer className="mt-16 border-t border-border/50 bg-gradient-primary-soft">
+          <div className="container py-10 md:py-12">
+            <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
+              {/* Brand + author */}
+              <div className="max-w-sm space-y-3">
+                <a href="/" className="flex w-fit items-center gap-2">
+                  <div className="p-2 rounded-lg bg-gradient-primary shadow-md">
+                    <GitBranch className="h-5 w-5 text-white" />
+                  </div>
+                  <span className="font-bold text-lg text-gradient-primary">
+                    {t("header.title")}
+                  </span>
+                </a>
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  {t("footer.description")}
+                </p>
+                <a
+                  href="https://www.linkedin.com/in/braiek-hazem/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+                >
+                  <Linkedin className="h-4 w-4" />
+                  {t("footer.madeBy")}{" "}
+                  <span className="font-semibold">Hazem Braiek</span>
+                </a>
+              </div>
+
+              {/* Supported platforms */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold text-foreground">
+                  {t("footer.supportedPlatforms")}
+                </h4>
+                <div className="flex items-center gap-5 text-sm text-muted-foreground">
+                  <span className="inline-flex items-center gap-2">
+                    <Github className="h-4 w-4 text-primary" />
+                    {t("hero.github")}
+                  </span>
+                  <span className="inline-flex items-center gap-2">
+                    <Gitlab className="h-4 w-4 text-orange-500" />
+                    {t("hero.gitlab")}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom bar */}
+            <div className="mt-8 flex flex-col items-center justify-between gap-2 border-t border-border/50 pt-6 sm:flex-row">
+              <p className="text-xs text-muted-foreground">
+                © {new Date().getFullYear()} {t("header.title")}.{" "}
+                {t("footer.rights")}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {t("footer.openSource")}
+              </p>
+            </div>
           </div>
         </footer>
 

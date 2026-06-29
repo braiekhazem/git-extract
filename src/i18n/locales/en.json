@@ -83,8 +83,11 @@
     "remove": "Remove"
   },
   "footer": {
-    "builtWith": "Built with ❤️ copyright 2025",
-    "description": "GitExtract - Download repository files with ease."
+    "description": "Browse, select, and download files from any public GitHub or GitLab repository — no cloning required.",
+    "supportedPlatforms": "Supported platforms",
+    "openSource": "Free & open source",
+    "madeBy": "Built by",
+    "rights": "All rights reserved."
   },
   "errors": {
     "loadRepo": "Failed to load repository",

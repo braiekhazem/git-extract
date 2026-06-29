@@ -83,8 +83,11 @@
     "remove": "Supprimer"
   },
   "footer": {
-    "builtWith": "Créé avec ❤️ copyright 2025",
-    "description": "GitExtract - Téléchargez les fichiers de dépôt en toute simplicité."
+    "description": "Parcourez, sélectionnez et téléchargez des fichiers depuis n'importe quel dépôt GitHub ou GitLab public — sans cloner.",
+    "supportedPlatforms": "Plateformes prises en charge",
+    "openSource": "Gratuit et open source",
+    "madeBy": "Réalisé par",
+    "rights": "Tous droits réservés."
   },
   "errors": {
     "loadRepo": "Échec du chargement du dépôt",
