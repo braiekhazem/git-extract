@@ -2,6 +2,7 @@
 /dist
 /build
 /public/build
-/public/build
-/public/build
-/public/build
+bun.lockb
+.env
+.env.local
+.DS_Store

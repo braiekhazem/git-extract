@@ -51,8 +51,8 @@ GitExtract is a modern, fast, and user-friendly web application that allows you 
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/yourusername/gitextract.git
-   cd gitextract
+   git clone https://github.com/braiekhazem/git-extract.git
+   cd git-extract
    ```
 
 2. **Install dependencies**
@@ -177,22 +177,11 @@ src/
 ├── types/              # TypeScript type definitions
 ├── hooks/              # Custom React hooks
 ├── context/            # React context providers
+├── i18n/               # Translations (en, fr, ar)
 └── lib/                # Utility functions
 ```
 
 ## 🔧 Configuration
-
-### Environment Variables
-
-Create a `.env` file in the root directory:
-
-```env
-# Optional: GitHub Personal Access Token for higher rate limits
-VITE_GITHUB_TOKEN=your_github_token_here
-
-# Optional: GitLab Personal Access Token
-VITE_GITLAB_TOKEN=your_gitlab_token_here
-```
 
 ### Build Configuration
 
@@ -213,10 +202,9 @@ npm run build
 
 # Preview the production build
 npm run preview
-
-# Deploy to your hosting platform
-npm run deploy
 ```
+
+The build output is written to `dist/` — deploy that folder to any static host.
 
 ## 🤝 Contributing
 
@@ -241,7 +229,7 @@ We welcome contributions! Please follow these steps:
 
 - Follow TypeScript best practices
 - Use meaningful commit messages
-- Add tests for new features
+- Run `npm run lint` before opening a PR
 - Ensure responsive design
 - Maintain accessibility standards
 
@@ -261,7 +249,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Hazem Braiek**
 
 - LinkedIn: [Hazem Braiek](https://www.linkedin.com/in/braiek-hazem/)
-- GitHub: [@hazem-braiek](https://github.com/hazem-braiek)
+- GitHub: [@braiekhazem](https://github.com/braiekhazem)
 
 ## 🙏 Acknowledgments
 
@@ -273,10 +261,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📊 Stats
 
-![GitHub stars](https://img.shields.io/github/stars/yourusername/gitextract)
-![GitHub forks](https://img.shields.io/github/forks/yourusername/gitextract)
-![GitHub issues](https://img.shields.io/github/issues/yourusername/gitextract)
-![GitHub license](https://img.shields.io/github/license/yourusername/gitextract)
+![GitHub stars](https://img.shields.io/github/stars/braiekhazem/git-extract)
+![GitHub forks](https://img.shields.io/github/forks/braiekhazem/git-extract)
+![GitHub issues](https://img.shields.io/github/issues/braiekhazem/git-extract)
+![GitHub license](https://img.shields.io/github/license/braiekhazem/git-extract)
 
 ---
 
