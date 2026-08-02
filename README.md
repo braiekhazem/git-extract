@@ -1,271 +1,91 @@
-# 🚀 GitExtract
+# GitExtract
 
-**Download files from Git repositories without cloning the entire project**
+Grab a few files out of a GitHub or GitLab repo without cloning the whole thing.
 
-GitExtract is a modern, fast, and user-friendly web application that allows you to browse, select, and download specific files and folders from any public GitHub or GitLab repository without the need to clone the entire project.
+I kept running into the same annoyance: I need one folder from some 400MB repo, and my options are clone it all, or click through the web UI downloading files one at a time. So this does the obvious thing — paste a repo URL, tick the files you want, get a ZIP.
 
-![GitExtract Demo](https://img.shields.io/badge/Status-Live-brightgreen)
-![React](https://img.shields.io/badge/React-18+-blue)
-![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3+-blue)
+Live at [gitextract](https://git-extract.netlify.app).
 
-## ✨ Features
+## What it does
 
-### 🎯 Core Functionality
+Paste a URL and pick one of three things:
 
-- **Visual File Explorer** - Browse repository structure with an intuitive tree view
-- **Multi-file Selection** - Select multiple files and folders for batch download
-- **Direct Download** - Download entire repositories or specific paths instantly
-- **Branch Selection** - Switch between different branches and tags
-- **Lazy Loading** - Efficiently load folder contents on demand
+- **Explore** — opens a file tree. Expand folders, tick what you want, download a ZIP of just that.
+- **Direct download** — skips the tree, zips the whole repo (or whatever path the URL points at).
+- **Get link** — gives you a shareable URL that reruns either of the above when someone opens it.
 
-### 🌐 Platform Support
+URLs can point at a repo root, a subfolder, or a single file:
 
-- **GitHub Integration** - Full support for public GitHub repositories
-- **GitLab Integration** - Complete GitLab public repository support
-- **URL Flexibility** - Supports repository, folder, and direct file URLs
-
-### 💾 Smart Features
-
-- **Save Repositories** - Bookmark frequently used repositories
-- **Shareable Links** - Generate direct download links for sharing
-- **Progress Tracking** - Real-time download progress with cancellation
-- **Error Handling** - Comprehensive error messages and recovery
-
-### 🎨 User Experience
-
-- **Modern UI** - Beautiful, responsive design with smooth animations
-- **Dark Mode** - Full dark/light theme support
-- **Mobile Friendly** - Optimized for all device sizes
-- **Fast Performance** - Optimized loading and minimal API calls
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Node.js 18+
-- npm or yarn package manager
-
-### Installation
-
-1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/braiekhazem/git-extract.git
-   cd git-extract
-   ```
-
-2. **Install dependencies**
-
-   ```bash
-   npm install
-   # or
-   yarn install
-   ```
-
-3. **Start development server**
-
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   ```
-
-4. **Open your browser**
-   Navigate to `http://localhost:5173`
-
-## 📖 Usage
-
-### Basic Usage
-
-1. **Enter Repository URL**
-
-   - Paste any public GitHub or GitLab repository URL
-   - Supports repository, folder, or file URLs
-
-2. **Choose Action**
-
-   - **Explore Files**: Browse and select specific files
-   - **Direct Download**: Download entire repository immediately
-   - **Get Link**: Generate a shareable download link
-
-3. **Browse & Select** (Explore mode)
-
-   - Navigate through folders by clicking to expand
-   - Select files and folders using checkboxes
-   - Use "Select All" or "Unselect All" for bulk operations
-
-4. **Download**
-   - Click "Download" to create a ZIP file
-   - Monitor progress with the built-in progress tracker
-
-### Supported URL Formats
-
-```bash
-# Repository URLs
+```
 https://github.com/facebook/react
-https://gitlab.com/gitlab-org/gitlab-foss
-
-# Folder URLs
 https://github.com/facebook/react/tree/main/packages
-https://gitlab.com/gitlab-org/gitlab-foss/-/tree/master/app
-
-# File URLs
 https://github.com/facebook/react/blob/main/README.md
-https://gitlab.com/gitlab-org/gitlab-foss/-/blob/master/README.md
+
+https://gitlab.com/gitlab-org/gitlab-foss
+https://gitlab.com/gitlab-org/gitlab-foss/-/tree/master/app
 ```
 
-### Advanced Features
+Other things that are in there: branch and tag switching (your selection survives the switch), bookmarking repos you come back to, dark mode, and English/French/Arabic.
 
-#### Branch Selection
+Folder contents load only when you expand them, so opening a huge repo doesn't hammer the API up front.
 
-- Switch between different branches and tags
-- Automatically detects available branches
-- Preserves your file selection when switching branches
+## Running it locally
 
-#### Save Repositories
+Needs Node 18+.
 
-- Bookmark frequently used repositories
-- Quick access from the "Saved Repos" tab
-- Persistent storage in browser
+```bash
+git clone https://github.com/braiekhazem/git-extract.git
+cd git-extract
+npm install
+npm run dev
+```
 
-#### Shareable Links
+That serves on `http://localhost:8080` (set in `vite.config.ts`, not the Vite default).
 
-- Generate direct download links
-- Share with team members
-- Supports auto-download via URL parameters
+For a production build:
 
-## 🛠️ Technology Stack
+```bash
+npm run build     # output lands in dist/
+npm run preview   # serve the build locally to check it
+```
 
-### Frontend
+`dist/` is a plain static bundle — drop it on Netlify, Vercel, S3, whatever.
 
-- **React 18** - Modern React with hooks and concurrent features
-- **TypeScript** - Type-safe development
-- **Vite** - Fast build tool and development server
-- **Tailwind CSS** - Utility-first CSS framework
+## How it's built
 
-### UI Components
+React 18 + TypeScript on Vite, Tailwind for styling, Radix primitives underneath the components. Zipping happens in the browser with JSZip and FileSaver — there's no backend, every request goes straight from your browser to the GitHub or GitLab API.
 
-- **Radix UI** - Accessible, unstyled UI primitives
-- **Lucide React** - Beautiful, customizable icons
-- **Sonner** - Toast notifications
-
-### State Management
-
-- **React Hooks** - Built-in state management
-- **Context API** - Theme and global state management
-
-### File Processing
-
-- **JSZip** - Client-side ZIP file creation
-- **FileSaver.js** - Cross-browser file downloading
-
-## 🏗️ Project Structure
+Layout:
 
 ```
 src/
-├── components/          # Reusable UI components
-│   ├── ui/             # Base UI components (buttons, inputs, etc.)
-│   ├── FileTree.tsx    # File explorer component
-│   ├── RepoForm.tsx    # Repository input form
-│   └── ...
-├── pages/              # Main application pages
-│   └── Index.tsx       # Home page
-├── services/           # API and business logic
-│   ├── repoService.ts  # Repository data fetching
-│   └── downloadService.ts # File download logic
-├── types/              # TypeScript type definitions
-├── hooks/              # Custom React hooks
-├── context/            # React context providers
-├── i18n/               # Translations (en, fr, ar)
-└── lib/                # Utility functions
+├── components/     # UI, with shadcn-style primitives in ui/
+├── pages/          # Index.tsx is the whole app, really
+├── services/       # repoService.ts (API), downloadService.ts (zip + share links)
+├── context/        # theme
+├── i18n/           # en, fr, ar
+├── hooks/
+├── types/
+└── lib/
 ```
 
-## 🔧 Configuration
+State is just hooks and one context for the theme. Saved repos and theme live in localStorage.
 
-### Build Configuration
+## Limits worth knowing about
 
-The project uses Vite for building. Customize `vite.config.ts` for your needs:
+- **No auth, so you get the anonymous rate limit.** GitHub is 60 requests/hour per IP. Browse a couple of large repos and you'll hit it.
+- **Public repos only.** No token support yet, which is what would fix both this and the rate limit.
+- **gitlab.com only** — self-hosted GitLab instances aren't handled, the host is hardcoded.
+- **Everything zips in memory.** Very large repos will make the tab struggle or die. There's no streaming.
 
-```typescript
-export default defineConfig({
-  plugins: [react()],
-  // Add your custom configuration here
-});
-```
+## Contributing
 
-## 📦 Building for Production
+Fork it, branch, PR. Run `npm run lint` before you open one. No test suite yet — if you want to add one, that'd be genuinely useful.
 
-```bash
-# Build the application
-npm run build
+## License
 
-# Preview the production build
-npm run preview
-```
+MIT — see [LICENSE](LICENSE).
 
-The build output is written to `dist/` — deploy that folder to any static host.
+## Author
 
-## 🤝 Contributing
-
-We welcome contributions! Please follow these steps:
-
-1. **Fork the repository**
-2. **Create a feature branch**
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
-3. **Commit your changes**
-   ```bash
-   git commit -m 'Add some amazing feature'
-   ```
-4. **Push to the branch**
-   ```bash
-   git push origin feature/amazing-feature
-   ```
-5. **Open a Pull Request**
-
-### Development Guidelines
-
-- Follow TypeScript best practices
-- Use meaningful commit messages
-- Run `npm run lint` before opening a PR
-- Ensure responsive design
-- Maintain accessibility standards
-
-## 🐛 Known Issues & Limitations
-
-- **Rate Limits**: GitHub/GitLab API rate limits may apply for unauthenticated requests
-- **Large Files**: Very large files (>100MB) may cause browser memory issues
-- **Private Repositories**: Only public repositories are supported
-- **Binary Files**: Some binary files may not display correctly in preview
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👨‍💻 Author
-
-**Hazem Braiek**
-
-- LinkedIn: [Hazem Braiek](https://www.linkedin.com/in/braiek-hazem/)
-- GitHub: [@braiekhazem](https://github.com/braiekhazem)
-
-## 🙏 Acknowledgments
-
-- [GitHub API](https://docs.github.com/en/rest) for repository data
-- [GitLab API](https://docs.gitlab.com/ee/api/) for GitLab integration
-- [Radix UI](https://www.radix-ui.com/) for accessible components
-- [Tailwind CSS](https://tailwindcss.com/) for styling
-- [Lucide](https://lucide.dev/) for beautiful icons
-
-## 📊 Stats
-
-![GitHub stars](https://img.shields.io/github/stars/braiekhazem/git-extract)
-![GitHub forks](https://img.shields.io/github/forks/braiekhazem/git-extract)
-![GitHub issues](https://img.shields.io/github/issues/braiekhazem/git-extract)
-![GitHub license](https://img.shields.io/github/license/braiekhazem/git-extract)
-
----
-
-**Built with ❤️ by [Hazem Braiek](https://www.linkedin.com/in/braiek-hazem/) © 2025**
+Hazem Braiek — [GitHub](https://github.com/braiekhazem) · [LinkedIn](https://www.linkedin.com/in/braiek-hazem/)
